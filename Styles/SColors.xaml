@@ -18,11 +18,11 @@
 
     <!-- Button jugar color -->
     <Brush x:Key="JugarColorNormal">#00FF1F</Brush>
-    <Brush x:Key="JugarColorMouseOver">#00FF5E</Brush>
+    <Brush x:Key="JugarColorMouseOver">#00AF1F</Brush>
 
     <!-- Button eliminar color -->
     <Brush x:Key="EliminarColorNormal">#FF0021</Brush>
-    <Brush x:Key="EliminarColorMouseOver">#FF0000</Brush>
+    <Brush x:Key="EliminarColorMouseOver">#AF2121</Brush>
 
     <Brush x:Key="Background">#171618</Brush>
 

@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    
+
     <Style x:Key="lblSNT" TargetType="Label">
         <Setter Property="Foreground" Value="{StaticResource FontColor}"/>
         <Setter Property="FontFamily" Value="Consolas"/>
@@ -22,6 +22,16 @@
         </Setter>
     </Style>
 
+    <Style x:Key="lblSNTNBG" TargetType="Label">
+        <Setter Property="Foreground" Value="{StaticResource FontColor}"/>
+        <Setter Property="FontFamily" Value="Consolas"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
     <Style x:Key="lblS" TargetType="Label" BasedOn="{StaticResource lblSNT}">
         <Setter Property="Background" Value="#1D1C1E"/>
         <Style.Triggers>
@@ -31,7 +41,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="TBS" TargetType="TextBlock">
+    <Style x:Key="TBK" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource FontColor}"/>
         <Setter Property="FontFamily" Value="Consolas"/>
         <Setter Property="FontWeight" Value="Bold"/>
@@ -39,7 +49,7 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 
-    <Style x:Key="TB" TargetType="{x:Type TextBox}">
+    <Style x:Key="TBX" TargetType="{x:Type TextBox}">
         <Setter Property="Foreground" Value="Gray"/>
         <Setter Property="FontFamily" Value="Consolas"/>
         <Setter Property="SnapsToDevicePixels" Value="True" />
