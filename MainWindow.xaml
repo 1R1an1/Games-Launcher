@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Games_Launcher"
         xmlns:Views="clr-namespace:Games_Launcher.Views"
         mc:Ignorable="d"
-        Title="Games Launcher" Icon="Img/Icon.ico" Height="450" Width="800" Background="{StaticResource Background}"
+        Title="Games Launcher" Icon="/icon.ico" Height="450" Width="750" Background="{StaticResource Background}"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" WindowStyle="None">
 
 
@@ -36,23 +36,23 @@
             <!-- #region Titulo-->
 
             <!-- #region Sin imagen -->
-            <Label VerticalAlignment="Center"
+            <!--<Label VerticalAlignment="Center"
                    Grid.Column="0" Grid.Row="0"
                    Height="30" Padding="13,8,0,0"
                    Foreground="White"
                    FontFamily="Consolas" FontWeight="Normal" FontSize="12"
-                   Content="Games Launcher" MouseDown="MoveWindow"/>
+                   Content="Games Launcher" MouseDown="MoveWindow"/>-->
             <!--#endregion-->
 
             <!--Con imagen-->
-            <!--<Label VerticalAlignment="Center"
+            <Label VerticalAlignment="Center"
                    Grid.Column="0" Grid.Row="0"
                    Height="30" Padding="35,8,0,0"
                    Foreground="White"
                    FontFamily="Consolas" FontWeight="Normal" FontSize="12"
                    Content="Games Launcher" MouseDown="MoveWindow"/>
-            <Image Source="Img/Icon.ico" HorizontalAlignment="Left" VerticalAlignment="Center"
-                   Height="15" Margin="11.5,0,0,0"/>-->
+            <Image Source="/iconW.ico" HorizontalAlignment="Left" VerticalAlignment="Center"
+                   Height="15" Margin="11.5,0,0,0"/>
             <!--#endregion-->
             
             <!-- #region Botones minimizar y cerrar-->

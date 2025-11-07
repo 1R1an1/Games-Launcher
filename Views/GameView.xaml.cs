@@ -2,12 +2,11 @@
 using Games_Launcher.Model;
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Games_Launcher.Views
@@ -38,16 +37,26 @@ namespace Games_Launcher.Views
 
                     if (currentlyRunning && !_isRunning)
                     {
-                        
-                        Dispatcher.Invoke(() => { BTNJugar.Margin = new Thickness(0, 0, 12, 0); BTNJugar.Content = "DETENER"; });
+                        Dispatcher.Invoke(() =>
+                        {
+                            BTNJugar.Margin = new Thickness(0, 0, 12, 0);
+                            BTNJugar.Content = "DETENER";
+                            BTNJugar.Tag = App.Current.FindResource("DownloadColorNormal");
+                            BTNJugar.BorderBrush = (Brush)App.Current.FindResource("DownloadColorMouseOver");
+                        });
 
                         _isRunning = true;
                         starterTime = DateTime.Now;
                     }
                     else if (!currentlyRunning && _isRunning)
                     {
-                        
-                        Dispatcher.Invoke(() => { BTNJugar.Margin = new Thickness(0, 0, 23, 0); BTNJugar.Content = "JUGAR"; });
+                        Dispatcher.Invoke(() =>
+                        {
+                            BTNJugar.Margin = new Thickness(0, 0, 23, 0);
+                            BTNJugar.Content = "JUGAR";
+                            BTNJugar.Tag = App.Current.FindResource("JugarColorNormal");
+                            BTNJugar.BorderBrush = (Brush)App.Current.FindResource("JugarColorMouseOver");
+                        });
 
                         _isRunning = false;
                         TimeSpan duration = DateTime.Now - starterTime;
@@ -56,9 +65,14 @@ namespace Games_Launcher.Views
                         Dispatcher.Invoke(() => LBLTimeOppend.Content = ConvertTime(_thisGame.PlayTime));
                     }
 
-                    await Task.Delay(2000);
+                    await Task.Delay(3000);
                 }
             });
+        }
+
+        public GameView()
+        {
+            InitializeComponent();
         }
 
         private void BTNJugar_Click(object sender, RoutedEventArgs e)
@@ -67,9 +81,8 @@ namespace Games_Launcher.Views
                 Process.Start(_thisGame.Path);
             else
                 foreach (var process in _gameProcess)
-                {
                     process.Kill();
-                }
+                
             
         }
         private void BTNEliminar_Click(object sender, RoutedEventArgs e)
@@ -94,7 +107,7 @@ namespace Games_Launcher.Views
             if (string.IsNullOrEmpty(_thisGame.Path) || !File.Exists(_thisGame.Path))
                 return null;
 
-            Icon icon = Icon.ExtractAssociatedIcon(_thisGame.Path);
+            System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(_thisGame.Path);
 
             using (MemoryStream ms = new MemoryStream())
             {

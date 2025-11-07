@@ -5,12 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Games_Launcher.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="419" d:DesignWidth="800">
+             d:DesignHeight="419" d:DesignWidth="750">
     <Grid>
         <!--<local:GameView VerticalAlignment="Top" HorizontalAlignment="Center"/>-->
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="Juegos" Margin="0,0,0,70"/>
-        </ScrollViewer>
+        <Border Margin="0,0,0,70" BorderBrush="{StaticResource FontColor}" BorderThickness="0,0,0,1">
+            <ScrollViewer Padding="0,5" VerticalScrollBarVisibility="Visible" BorderBrush="{StaticResource FontColor}">
+                <ScrollViewer.Resources>
+                    <Style TargetType="ScrollBar">
+                        <Setter Property="Width" Value="20"/>
+                        <Setter Property="Template" Value="{StaticResource VerticalScrollBar}"/>
+                    </Style>
+                </ScrollViewer.Resources>
+                <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="Juegos"/>
+            </ScrollViewer>
+        </Border>
         <Button x:Name="BTNAgregar"
                 Style="{StaticResource ButtonStyle}"
                 FontSize="25"

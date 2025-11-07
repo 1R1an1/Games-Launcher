@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="Styles\SColors.xaml"/>
                 <ResourceDictionary Source="Styles\ButtonStyles.xaml"/>
                 <ResourceDictionary Source="Styles\OtherStyles.xaml"/>
+                <ResourceDictionary Source="Styles/ScrollViewerStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

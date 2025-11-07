@@ -14,7 +14,7 @@
 
     <!-- Button download color -->
     <Brush x:Key="DownloadColorNormal">#0081FF</Brush>
-    <Brush x:Key="DownloadColorMouseOver">#0065FF</Brush>
+    <Brush x:Key="DownloadColorMouseOver">#0055FF</Brush>
 
     <!-- Button jugar color -->
     <Brush x:Key="JugarColorNormal">#00FF1F</Brush>
