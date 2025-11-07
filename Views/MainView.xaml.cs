@@ -1,9 +1,9 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Diagnostics;
+﻿using Games_Launcher.Core;
+using Games_Launcher.Model;
+using Microsoft.Win32;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -18,56 +18,35 @@ namespace Games_Launcher.Views
         public MainView()
         {
             InitializeComponent();
-            
+            foreach (Game game in GamesInfo.Games)
+            {
+                CreateGame(game);
+            }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void BTNAgregar_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Executable Files (*.exe, *.ink)|*.exe, *.ink|All Files (*.*)|*.*";
+            dialog.Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*";
             dialog.Title = "Selecciona un archivo ejecutable";
 
             bool? resultado = dialog.ShowDialog();
 
             if (resultado == true)
             {
-                string rutaExe = dialog.FileName;
-                // Aquí puedes guardarla en un archivo, en configuración, o devolverla
-                AppIcon.Source = ObtenerIconoExe(rutaExe);
-
-
-                _ = Task.Run(async () =>
+                Game newGame = new Game
                 {
-                    string nombreProceso = Path.GetFileNameWithoutExtension(rutaExe);
-                    DateTime? inicio = null;
+                    Name = Path.GetFileNameWithoutExtension(dialog.FileName),
+                    Path = dialog.FileName,
+                    PlayTime = new System.TimeSpan(0)
+                };
+                GamesInfo.Games.Add(newGame);
 
-                    while (true)
-                    {
-                        var procesos = Process.GetProcessesByName(nombreProceso);
-
-                        if (procesos.Length > 0 && inicio == null)
-                        {
-                            inicio = DateTime.Now;
-                        }
-                        else if (procesos.Length == 0 && inicio != null)
-                        {
-                            TimeSpan duracion = DateTime.Now - inicio.Value;
-
-                            Console.WriteLine($"⏱ El programa estuvo abierto durante {duracion.TotalSeconds:F0} segundos.");
-
-                            Dispatcher.Invoke(() =>
-                            {
-                                OpenTimeLBL.Content = duracion.ToString(@"hh\:mm\:ss");
-                            });
-
-                            inicio = null;
-                        }
-
-                        await Task.Delay(2000); // Revisa cada 2 segundos
-                    }
-                });
+                CreateGame(GamesInfo.Games.Last());
             }
         }
+
+        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); }
 
         public BitmapImage ObtenerIconoExe(string rutaExe)
         {

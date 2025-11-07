@@ -7,8 +7,16 @@
              mc:Ignorable="d" 
              d:DesignHeight="419" d:DesignWidth="800">
     <Grid>
-        <Button Style="{StaticResource ButtonStyle}" Content="BOTRON" FontSize="20" Click="Button_Click"/>
-        <Image Width="64" Height="64" x:Name="AppIcon" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="133,166,0,0"/>
-        <Label x:Name="OpenTimeLBL" Style="{StaticResource lblSNT}" Content="00:00:00" FontSize="20" Margin="0,100,0,0"/>
+        <!--<local:GameView VerticalAlignment="Top" HorizontalAlignment="Center"/>-->
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="Juegos" Margin="0,0,0,70"/>
+        </ScrollViewer>
+        <Button x:Name="BTNAgregar"
+                Style="{StaticResource ButtonStyle}"
+                FontSize="25"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,17.5"
+                Content="Agregar juego" Click="BTNAgregar_Click"
+                />
     </Grid>
 </UserControl>

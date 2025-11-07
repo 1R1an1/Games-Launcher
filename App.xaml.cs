@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using FortiCrypts;
+using Games_Launcher.Core;
 
 namespace Games_Launcher
 {
@@ -12,15 +13,18 @@ namespace Games_Launcher
         protected override void OnStartup(StartupEventArgs e)
         {
             CryptoUtils.iterations = 2500;
+            GamesInfo.LoadGamesData();
 
             window = new MainWindow();
             MainWindow = window;
             MainWindow.Show();
+            App.Current.Exit += Current_Exit;
 
 
             //reference windoww = new reference();
             ////MainWindow = windoww;
             //windoww.Show();
         }
+        private void Current_Exit(object sender, ExitEventArgs e) => GamesInfo.SaveGamesData();
     }
 }
