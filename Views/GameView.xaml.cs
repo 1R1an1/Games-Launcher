@@ -2,6 +2,7 @@
 using Games_Launcher.Model;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,26 +15,27 @@ namespace Games_Launcher.Views
     /// </summary>
     public partial class GameView : UserControl
     {
-        private Game _thisGame;
-        private Process[] _gameProcess;
-        private bool _isRunning = false;
+        public Game thisGame;
+        public Process[] _gameProcess;
+        public bool IsRunning = false;
+        public DateTime starterTime = DateTime.Now;
 
         public GameView(Game Game)
         {
-            _thisGame = Game;
+            thisGame = Game;
             InitializeComponent();
-            Init();
+            UpdateInfo();
 
             _ = Task.Run(async () =>
             {
                 DateTime starterTime = DateTime.Now;
 
-                while (true)
+                while (false)
                 {
-                    _gameProcess = Process.GetProcessesByName(_thisGame.ProcessName);
+                    _gameProcess = Process.GetProcessesByName(thisGame.ProcessName);
                     bool currentlyRunning = _gameProcess.Length > 0;
 
-                    if (currentlyRunning && !_isRunning)
+                    if (currentlyRunning && !IsRunning)
                     {
                         Dispatcher.Invoke(() =>
                         {
@@ -43,10 +45,10 @@ namespace Games_Launcher.Views
                             BTNJugar.BorderBrush = (Brush)FindResource("DownloadColorMouseOver");
                         });
 
-                        _isRunning = true;
+                        IsRunning = true;
                         starterTime = DateTime.Now;
                     }
-                    else if (!currentlyRunning && _isRunning)
+                    else if (!currentlyRunning && IsRunning)
                     {
                         Dispatcher.Invoke(() =>
                         {
@@ -56,11 +58,11 @@ namespace Games_Launcher.Views
                             BTNJugar.BorderBrush = (Brush)FindResource("JugarColorMouseOver");
                         });
 
-                        _isRunning = false;
+                        IsRunning = false;
                         TimeSpan duration = DateTime.Now - starterTime;
-                        _thisGame.PlayTime += duration;
+                        thisGame.PlayTime += duration;
 
-                        Dispatcher.Invoke(() => LBLTimeOppend.Content = GameFunctions.ConvertTime(_thisGame.PlayTime));
+                        Dispatcher.Invoke(() => LBLTimeOppend.Content = GameFunctions.ConvertTime(thisGame.PlayTime));
                     }
 
                     await Task.Delay(3000);
@@ -75,15 +77,16 @@ namespace Games_Launcher.Views
 
         private void BTNJugar_Click(object sender, RoutedEventArgs e)
         {
-            if (!_isRunning)
+            if (!IsRunning)
             {
                 try
                 {
                     Process.Start(new ProcessStartInfo()
                     {
-                        FileName = _thisGame.Path,
-                        Arguments = _thisGame.Parameters,
-                        UseShellExecute = false
+                        FileName = thisGame.Path,
+                        Arguments = thisGame.Parameters,
+                        UseShellExecute = false,
+                        WorkingDirectory = Path.GetDirectoryName(thisGame.Path)
                     });
                 } catch
                 {
@@ -98,10 +101,11 @@ namespace Games_Launcher.Views
         }
         private void BTNEliminar_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show($"¿Estás seguro de que deseas eliminar {_thisGame.Name}?", "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if (MessageBox.Show($"¿Estás seguro de que deseas eliminar {thisGame.Name}?", "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                 return;
 
-            GamesInfo.Games.Remove(_thisGame);
+            GamesInfo.Games.Remove(thisGame);
+            GameMonitor.Unregister(this);
             if (Parent is Panel panel)
             {
                 panel.Children.Remove(this);
@@ -113,16 +117,16 @@ namespace Games_Launcher.Views
         }
 
 
-        private void Init()
+        public void UpdateInfo()
         {
-            GameIconIMG.Source = GameFunctions.GetGameIcon(_thisGame.Path);
-            GameTitleTB.Text = _thisGame.Name;
-            LBLTimeOppend.Content = GameFunctions.ConvertTime(_thisGame.PlayTime);
+            GameIconIMG.Source = GameFunctions.GetGameIcon(thisGame.Path);
+            GameTitleTB.Text = thisGame.Name;
+            LBLTimeOppend.Content = GameFunctions.ConvertTime(thisGame.PlayTime);
         }
 
         private void GameIconIMG_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            ConfigGameWindow window = new ConfigGameWindow(_thisGame);
+            ConfigGameWindow window = new ConfigGameWindow(thisGame, this);
             window.ShowDialog();
         }
     }

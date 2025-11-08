@@ -10,10 +10,10 @@ namespace Games_Launcher
     /// </summary>
     public partial class ConfigGameWindow : Window
     {
-        public ConfigGameWindow(Game game)
+        public ConfigGameWindow(Game game, GameView gameView)
         {
             InitializeComponent();
-            aaaaaaaa.Children.Add(new ConfigGameView(game));
+            aaaaaaaa.Children.Add(new ConfigGameView(game, gameView));
             borde1.Visibility = Visibility.Visible;
         }
 

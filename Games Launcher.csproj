@@ -66,6 +66,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Core\GameFunctions.cs" />
+    <Compile Include="Core\GameMonitor.cs" />
     <Compile Include="Core\GamesInfo.cs" />
     <Compile Include="ConfigGameWindow.xaml.cs">
       <DependentUpon>ConfigGameWindow.xaml</DependentUpon>

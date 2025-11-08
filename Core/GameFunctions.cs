@@ -1,11 +1,6 @@
-﻿using Games_Launcher.Model;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
 namespace Games_Launcher.Core
@@ -43,12 +38,12 @@ namespace Games_Launcher.Core
                 }
                 else
                 {
-                    return $"{time.TotalMinutes:F1} minutos";
+                    return $"{time.TotalMinutes:F0} minutos";
                 }
             }
             else
             {
-                return $"{time.TotalSeconds:F1} segundos";
+                return $"{time.TotalSeconds:F0} segundos";
             }
         }
 

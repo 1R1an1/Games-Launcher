@@ -12,6 +12,7 @@ namespace Games_Launcher
         public static MainWindow window;
         protected override void OnStartup(StartupEventArgs e)
         {
+            base.OnStartup(e);
             CryptoUtils.iterations = 2500;
             GamesInfo.LoadGamesData();
 

@@ -40,15 +40,15 @@ namespace Games_Launcher.Views
                 CreateGame(GamesInfo.Games.Last());
             }
         }
-        public void UpdateGames()
-        {
-            Juegos.Children.Clear();
-            foreach (Game game in GamesInfo.Games)
-            {
-                CreateGame(game);
-            }
-        }
+        //public void UpdateGame()
+        //{
+        //    //Juegos.Children.Clear();
+        //    //foreach (Game game in GamesInfo.Games)
+        //    //{
+        //    //    CreateGame(game);
+        //    //}
+        //}
 
-        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); }
+        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
     }
 }

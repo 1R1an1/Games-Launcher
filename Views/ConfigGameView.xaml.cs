@@ -1,5 +1,6 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,9 +13,11 @@ namespace Games_Launcher.Views
     public partial class ConfigGameView : UserControl
     {
         private Game _thisGame;
-        public ConfigGameView(Game game)
+        private GameView _thisGameView;
+        public ConfigGameView(Game game, GameView gameView)
         {
             _thisGame = game;
+            _thisGameView = gameView;
             InitializeComponent();
             Init();
         }
@@ -36,7 +39,8 @@ namespace Games_Launcher.Views
             _thisGame.Name = GameNameTBX.Text;
             _thisGame.Path = GamePathTBX.Text;
             _thisGame.ProcessName = Path.GetFileNameWithoutExtension(GamePathTBX.Text);
-            App.window.CDU_Window.UpdateGames();
+            //App.window.CDU_Window..UpdateGames();
+            _thisGameView.UpdateInfo();
             Window.GetWindow(this).Close();
         }
 
@@ -55,6 +59,16 @@ namespace Games_Launcher.Views
             GamePathTBX.Text = _thisGame.Path;
             GameNameTBX.Text = _thisGame.Name;
             GameParametersTBX.Text = _thisGame.Parameters;
+        }
+
+        private void OpenGamePathBTN_Click(object sender, RoutedEventArgs e)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(_thisGame.Path)))
+            {
+                MessageBox.Show("La carpeta del juego no fue encontrada", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            Process.Start("explorer.exe", Path.GetDirectoryName(_thisGame.Path));
         }
     }
 }
