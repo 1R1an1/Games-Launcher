@@ -2,12 +2,10 @@
 using Games_Launcher.Model;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace Games_Launcher.Views
 {
@@ -32,7 +30,7 @@ namespace Games_Launcher.Views
 
                 while (true)
                 {
-                    _gameProcess = Process.GetProcessesByName(_thisGame.Name);
+                    _gameProcess = Process.GetProcessesByName(_thisGame.ProcessName);
                     bool currentlyRunning = _gameProcess.Length > 0;
 
                     if (currentlyRunning && !_isRunning)
@@ -41,8 +39,8 @@ namespace Games_Launcher.Views
                         {
                             BTNJugar.Margin = new Thickness(0, 0, 12, 0);
                             BTNJugar.Content = "DETENER";
-                            BTNJugar.Tag = App.Current.FindResource("DownloadColorNormal");
-                            BTNJugar.BorderBrush = (Brush)App.Current.FindResource("DownloadColorMouseOver");
+                            BTNJugar.Tag = FindResource("DownloadColorNormal");
+                            BTNJugar.BorderBrush = (Brush)FindResource("DownloadColorMouseOver");
                         });
 
                         _isRunning = true;
@@ -54,15 +52,15 @@ namespace Games_Launcher.Views
                         {
                             BTNJugar.Margin = new Thickness(0, 0, 23, 0);
                             BTNJugar.Content = "JUGAR";
-                            BTNJugar.Tag = App.Current.FindResource("JugarColorNormal");
-                            BTNJugar.BorderBrush = (Brush)App.Current.FindResource("JugarColorMouseOver");
+                            BTNJugar.Tag = FindResource("JugarColorNormal");
+                            BTNJugar.BorderBrush = (Brush)FindResource("JugarColorMouseOver");
                         });
 
                         _isRunning = false;
                         TimeSpan duration = DateTime.Now - starterTime;
                         _thisGame.PlayTime += duration;
 
-                        Dispatcher.Invoke(() => LBLTimeOppend.Content = ConvertTime(_thisGame.PlayTime));
+                        Dispatcher.Invoke(() => LBLTimeOppend.Content = GameFunctions.ConvertTime(_thisGame.PlayTime));
                     }
 
                     await Task.Delay(3000);
@@ -78,7 +76,20 @@ namespace Games_Launcher.Views
         private void BTNJugar_Click(object sender, RoutedEventArgs e)
         {
             if (!_isRunning)
-                Process.Start(_thisGame.Path);
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        FileName = _thisGame.Path,
+                        Arguments = _thisGame.Parameters,
+                        UseShellExecute = false
+                    });
+                } catch
+                {
+                    MessageBox.Show("No se pudo iniciar el juego. Verifica que la ruta y los parámetros sean correctos.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
             else
                 foreach (var process in _gameProcess)
                     process.Kill();
@@ -102,50 +113,17 @@ namespace Games_Launcher.Views
         }
 
 
-        private BitmapImage GetGameIcon()
-        {
-            if (string.IsNullOrEmpty(_thisGame.Path) || !File.Exists(_thisGame.Path))
-                return null;
-
-            System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(_thisGame.Path);
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                icon.ToBitmap().Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                ms.Seek(0, SeekOrigin.Begin);
-
-                BitmapImage image = new BitmapImage();
-                image.BeginInit();
-                image.StreamSource = ms;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.EndInit();
-
-                return image;
-            }
-        }
-        private string ConvertTime(TimeSpan time)
-        {
-            if (time.TotalSeconds > 100)
-            {
-                if (time.TotalMinutes > 100)
-                {
-                        return $"{time.TotalHours:F1} horas";
-                }
-                else
-                {
-                    return $"{time.TotalMinutes:F1} minutos";
-                }
-            }
-            else
-            {
-                return $"{time.TotalSeconds:F1} segundos";
-            }
-        }
         private void Init()
         {
-            GameIconIMG.Source = GetGameIcon();
+            GameIconIMG.Source = GameFunctions.GetGameIcon(_thisGame.Path);
             GameTitleTB.Text = _thisGame.Name;
-            LBLTimeOppend.Content = ConvertTime(_thisGame.PlayTime);
+            LBLTimeOppend.Content = GameFunctions.ConvertTime(_thisGame.PlayTime);
+        }
+
+        private void GameIconIMG_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            ConfigGameWindow window = new ConfigGameWindow(_thisGame);
+            window.ShowDialog();
         }
     }
 }

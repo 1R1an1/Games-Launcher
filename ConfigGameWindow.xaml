@@ -1,4 +1,4 @@
-﻿<Window x:Class="Games_Launcher.MainWindow"
+﻿<Window x:Class="Games_Launcher.ConfigGameWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,8 @@
         xmlns:Views="clr-namespace:Games_Launcher.Views"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight"
-        Title="Games Launcher" Icon="/icon.ico" MaxHeight="450" MaxWidth="790" Background="{StaticResource Background}"
+        MaxWidth="800"
+        Title="Config Game (Games Launcher)" Icon="/icon.ico" Height="430" Width="500" Background="{StaticResource Background}"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" WindowStyle="None">
 
 
@@ -20,7 +21,8 @@
         <!--#endregion-->
         
         <!--#region controles de usuario-->
-        <Views:MainView x:Name="CDU_Window" Grid.Row="1"/>
+        <Grid x:Name="aaaaaaaa" Grid.Row="1"/>
+        <!--<Views:ConfigGameView x:Name="CDU_Window" Grid.Row="1"/>-->
         <!--#endregion-->
         
         <!--#region Parte De arriba-->
@@ -42,7 +44,7 @@
                    Height="30" Padding="13,8,0,0"
                    Foreground="White"
                    FontFamily="Consolas" FontWeight="Normal" FontSize="12"
-                   Content="Games Launcher" MouseDown="MoveWindow"/>-->
+                   Content="Config Game (Games Launcher)" MouseDown="MoveWindow"/>-->
             <!--#endregion-->
 
             <!--Con imagen-->
@@ -51,7 +53,7 @@
                    Height="30" Padding="35,8,0,0"
                    Foreground="White"
                    FontFamily="Consolas" FontWeight="Normal" FontSize="12"
-                   Content="Games Launcher" MouseDown="MoveWindow"/>
+                   Content="Config Game (Games Launcher)" MouseDown="MoveWindow"/>
             <Image Source="/iconW.ico" HorizontalAlignment="Left" VerticalAlignment="Center"
                    Height="15" Margin="11.5,0,0,0"/>
             <!--#endregion-->

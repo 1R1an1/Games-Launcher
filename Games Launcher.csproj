@@ -65,14 +65,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\GameFunctions.cs" />
     <Compile Include="Core\GamesInfo.cs" />
+    <Compile Include="ConfigGameWindow.xaml.cs">
+      <DependentUpon>ConfigGameWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Model\Game.cs" />
+    <Compile Include="Views\ConfigGameView.xaml.cs">
+      <DependentUpon>ConfigGameView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GameView.xaml.cs">
       <DependentUpon>GameView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
+    <Page Include="ConfigGameWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -100,6 +111,10 @@
     <Page Include="Styles\ScrollViewerStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ConfigGameView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\GameView.xaml">
       <SubType>Designer</SubType>
@@ -146,6 +161,8 @@
   <ItemGroup>
     <Resource Include="iconW.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="ErrorImg.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

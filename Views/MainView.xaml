@@ -16,7 +16,7 @@
                         <Setter Property="Template" Value="{StaticResource VerticalScrollBar}"/>
                     </Style>
                 </ScrollViewer.Resources>
-                <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="Juegos"/>
+                <WrapPanel HorizontalAlignment="Center" Margin="10, 5" VerticalAlignment="Center" x:Name="Juegos"/>
             </ScrollViewer>
         </Border>
         <Button x:Name="BTNAgregar"

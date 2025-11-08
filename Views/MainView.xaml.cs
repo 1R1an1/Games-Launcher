@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 
 namespace Games_Launcher.Views
 {
@@ -26,18 +25,14 @@ namespace Games_Launcher.Views
 
         private void BTNAgregar_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*";
-            dialog.Title = "Selecciona un archivo ejecutable";
-
-            bool? resultado = dialog.ShowDialog();
-
-            if (resultado == true)
+            if (GameFunctions.SelectGamePath(out string path) == true)
             {
                 Game newGame = new Game
                 {
-                    Name = Path.GetFileNameWithoutExtension(dialog.FileName),
-                    Path = dialog.FileName,
+                    Name = Path.GetFileNameWithoutExtension(path),
+                    ProcessName = Path.GetFileNameWithoutExtension(path),
+                    Path = path,
+                    Parameters = "",
                     PlayTime = new System.TimeSpan(0)
                 };
                 GamesInfo.Games.Add(newGame);
@@ -45,29 +40,15 @@ namespace Games_Launcher.Views
                 CreateGame(GamesInfo.Games.Last());
             }
         }
-
-        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); }
-
-        public BitmapImage ObtenerIconoExe(string rutaExe)
+        public void UpdateGames()
         {
-            if (string.IsNullOrEmpty(rutaExe) || !File.Exists(rutaExe))
-                return null;
-
-            Icon icon = Icon.ExtractAssociatedIcon(rutaExe);
-
-            using (MemoryStream ms = new MemoryStream())
+            Juegos.Children.Clear();
+            foreach (Game game in GamesInfo.Games)
             {
-                icon.ToBitmap().Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                ms.Seek(0, SeekOrigin.Begin);
-
-                BitmapImage image = new BitmapImage();
-                image.BeginInit();
-                image.StreamSource = ms;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.EndInit();
-
-                return image;
+                CreateGame(game);
             }
         }
+
+        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); }
     }
 }

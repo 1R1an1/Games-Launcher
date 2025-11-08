@@ -5,14 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Games_Launcher.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="90" Width="350" Height="90" d:DesignWidth="350">
+             d:DesignHeight="90" Width="360" Height="90" d:DesignWidth="360">
     <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2">
         <Grid>
             <Image x:Name="GameIconIMG"
                    Width="64"
                    Height="64"
-                   Source="C:\Users\1R1an1\Downloads\download old\pistolita.png"
+                   Source="/ErrorImg.png"
+                   Cursor="Hand"
                    HorizontalAlignment="Left"
+                   MouseLeftButtonDown="GameIconIMG_MouseLeftButtonDown"
                    Margin="12.5,0,0,0"/>
 
             <StackPanel VerticalAlignment="Top"
@@ -27,12 +29,14 @@
                     <Label Style="{StaticResource lblSNTNBG}"
                            VerticalAlignment="Top"
                            Padding="2, 0"
+                           FontSize="13"
                            Foreground="White"
                            Content="TIEMPO DE JUEGO"/>
 
                     <Label x:Name="LBLTimeOppend"
                        Style="{StaticResource lblSNTNBG}"
                        VerticalAlignment="Top"
+                           FontSize="13"
                        Padding="3, 0"
                        Content="100 minutos"/>
                 </StackPanel>
@@ -50,7 +54,7 @@
                         Foreground="White"
                         Padding="5,1.5"
                         Margin="0,0,23,0"
-                        Content="JUGAR" FontSize="15" Click="BTNJugar_Click"/>
+                        Content="JUGAR" FontSize="17" Click="BTNJugar_Click"/>
 
                 <Button x:Name="BTNEliminar"
                         Style="{StaticResource ButtonStyle}"
@@ -58,14 +62,15 @@
                         BorderBrush="{StaticResource EliminarColorMouseOver}"
                         Foreground="White"
                         Padding="5,1.5"
-                        Margin="46,0,0,0"
-                        Content="ELIMINAR" FontSize="15" Click="BTNEliminar_Click"/>
+                        Margin="45,0,0,0"
+                        Content="ELIMINAR" FontSize="17" Click="BTNEliminar_Click"/>
             </StackPanel>
             <TextBlock x:Name="GameTitleTB"
                        Style="{StaticResource TBK}"
                        VerticalAlignment="Top"
-                       Margin="96,10,0,0"
-                       Width="110"
+                       Margin="91,10,0,0"
+                       Width="120"
+                       FontSize="14"
                        TextAlignment="Center"
                        Foreground="White"
                        TextWrapping="Wrap" 
