@@ -1,5 +1,4 @@
-﻿using FortiCrypts;
-using Games_Launcher.Model;
+﻿using Games_Launcher.Model;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;

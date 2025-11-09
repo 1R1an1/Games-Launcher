@@ -1,6 +1,7 @@
-﻿using System.Windows;
-using FortiCrypts;
+﻿using FortiCrypts;
 using Games_Launcher.Core;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace Games_Launcher
 {
@@ -16,6 +17,14 @@ namespace Games_Launcher
             CryptoUtils.iterations = 2500;
             GamesInfo.LoadGamesData();
 
+            _ = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    GamesInfo.SaveGamesData();
+                    await Task.Delay(60000);
+                }
+            });
             window = new MainWindow();
             MainWindow = window;
             MainWindow.Show();
