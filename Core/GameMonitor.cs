@@ -13,8 +13,6 @@ namespace Games_Launcher.Core
         private static readonly List<GameView> _views = new List<GameView>();
         private static bool _isRunning = false;
         private static readonly object _lock = new Object();
-        private static bool _stopRequested = false;
-        public static event Action ReadyToClose;
         private static List<GameView> runingGames = new List<GameView>();
 
         /// <summary>
@@ -26,11 +24,6 @@ namespace Games_Launcher.Core
             {
                 _views.Add(view);
             }
-
-            if (!_isRunning)
-            {
-                StartLoop();
-            }
         }
 
         public static void Unregister(GameView view)
@@ -41,19 +34,14 @@ namespace Games_Launcher.Core
             }
         }
 
-        public static void RequestStop()
-        {
-            _stopRequested = true;
-        }
-
-        private static void StartLoop()
+        public static void StartLoop()
         {
 
             _ = Task.Run(async () =>
             {
                 _isRunning = true;
 
-                while (true)
+                while (_isRunning)
                 {
                     GameView[] currentViews;
 
@@ -99,47 +87,27 @@ namespace Games_Launcher.Core
 
                             view.Dispatcher.Invoke(() => view.LBLTimeOppend.Content = GameFunctions.ConvertTime(view.thisGame.PlayTime));
                         }
-                        //if (_stopRequested && (currentlyRunning && view.IsRunning))
-                        //{
-                        //    runingGames--;
-                        //    view.thisGame.PlayTime += (DateTime.Now - view.starterTime);
-                        //    //ReadyToClose?.Invoke();
-                        //    //_isRunning = false;
-                        //}
-                        //if (_stopRequested && runingGames == 0)
-                        //{
-                        //    _isRunning = false;
-                        //    ReadyToClose?.Invoke();
-                        //}
                     }
 
-                    
+
                     await Task.Delay(3000);
                 }
+            });
 
-                //ReadyToClose?.Invoke();
-            });
-            _ = Task.Run(async () =>
+            App.window.CloseEvent += CloseEvent;
+        }
+
+        private static void CloseEvent()
+        {
+            if (runingGames.Count > 0)
             {
-                while (true)
+                _isRunning = false;
+                foreach (var item in runingGames)
                 {
-                    if (_stopRequested && runingGames.Count == 0)
-                    {
-                        _isRunning = false;
-                        ReadyToClose?.Invoke();
-                        break;
-                    }
-                    else if (_stopRequested && runingGames.Count > 0)
-                    {
-                        foreach (var item in runingGames)
-                        {
-                            item.thisGame.PlayTime += (DateTime.Now - item.starterTime);
-                        }
-                        runingGames.Clear();
-                    }
-                    await Task.Delay(500);
+                    item.thisGame.PlayTime += (DateTime.Now - item.starterTime);
                 }
-            });
+                runingGames.Clear();
+            }
         }
     }
 }

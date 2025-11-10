@@ -8,6 +8,7 @@ namespace Games_Launcher.Core
     public static class GamesInfo
     {
         public readonly static string GAMESDATAFILE = "./games_data.json";
+        public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.json";
         public static List<Game> Games = new List<Game>();
 
         public static void LoadGamesData()
@@ -23,9 +24,12 @@ namespace Games_Launcher.Core
 
         public static void SaveGamesData()
         {
+            string oldContent = File.ReadAllText(GAMESDATAFILE);
+            File.WriteAllText(GAMESDATAFILEOLD, oldContent);
+
             string json = JsonConvert.SerializeObject(Games, Formatting.Indented);
-            //string encryptedJson = AES256.Encrypt(json, CryptoUtils.defaultPassword);
             File.WriteAllText(GAMESDATAFILE, json);
+            //string encryptedJson = AES256.Encrypt(json, CryptoUtils.defaultPassword);
         }
     }
 }

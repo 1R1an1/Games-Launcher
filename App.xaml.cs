@@ -21,8 +21,8 @@ namespace Games_Launcher
             {
                 while (true)
                 {
-                    GamesInfo.SaveGamesData();
                     await Task.Delay(60000);
+                    GamesInfo.SaveGamesData();
                 }
             });
             window = new MainWindow();
@@ -30,6 +30,7 @@ namespace Games_Launcher
             MainWindow.Show();
             App.Current.Exit += Current_Exit;
 
+            GameMonitor.StartLoop();
 
             //reference windoww = new reference();
             ////MainWindow = windoww;

@@ -1,4 +1,6 @@
 ﻿using Games_Launcher.Core;
+using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -9,16 +11,11 @@ namespace Games_Launcher
     /// </summary>
     public partial class MainWindow : Window
     {
+        public event Action CloseEvent;
         public MainWindow()
         {
             InitializeComponent();
-            GameMonitor.ReadyToClose += GameMonitor_ReadyToClose;
             borde1.Visibility = Visibility.Visible;
-        }
-
-        private void GameMonitor_ReadyToClose()
-        {
-            Dispatcher.Invoke(()=> Close());
         }
 
         private void MoveWindow(object sender, MouseButtonEventArgs e)
@@ -28,7 +25,8 @@ namespace Games_Launcher
         }
         private void b_cerrar_Click(object sender, RoutedEventArgs e)
         {
-            GameMonitor.RequestStop();
+            CloseEvent?.Invoke();
+            Close();
         }
         private void b_minimizar_Click(object sender, RoutedEventArgs e)
         {

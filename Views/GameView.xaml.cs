@@ -25,49 +25,6 @@ namespace Games_Launcher.Views
             thisGame = Game;
             InitializeComponent();
             UpdateInfo();
-
-            _ = Task.Run(async () =>
-            {
-                DateTime starterTime = DateTime.Now;
-
-                while (false)
-                {
-                    _gameProcess = Process.GetProcessesByName(thisGame.ProcessName);
-                    bool currentlyRunning = _gameProcess.Length > 0;
-
-                    if (currentlyRunning && !IsRunning)
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            BTNJugar.Margin = new Thickness(0, 0, 12, 0);
-                            BTNJugar.Content = "DETENER";
-                            BTNJugar.Tag = FindResource("DownloadColorNormal");
-                            BTNJugar.BorderBrush = (Brush)FindResource("DownloadColorMouseOver");
-                        });
-
-                        IsRunning = true;
-                        starterTime = DateTime.Now;
-                    }
-                    else if (!currentlyRunning && IsRunning)
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            BTNJugar.Margin = new Thickness(0, 0, 23, 0);
-                            BTNJugar.Content = "JUGAR";
-                            BTNJugar.Tag = FindResource("JugarColorNormal");
-                            BTNJugar.BorderBrush = (Brush)FindResource("JugarColorMouseOver");
-                        });
-
-                        IsRunning = false;
-                        TimeSpan duration = DateTime.Now - starterTime;
-                        thisGame.PlayTime += duration;
-
-                        Dispatcher.Invoke(() => LBLTimeOppend.Content = GameFunctions.ConvertTime(thisGame.PlayTime));
-                    }
-
-                    await Task.Delay(3000);
-                }
-            });
         }
 
         public GameView()
