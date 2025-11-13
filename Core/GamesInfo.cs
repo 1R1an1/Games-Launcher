@@ -1,7 +1,9 @@
 ﻿using Games_Launcher.Model;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Windows;
 
 namespace Games_Launcher.Core
 {
@@ -9,6 +11,7 @@ namespace Games_Launcher.Core
     {
         public readonly static string GAMESDATAFILE = "./games_data.json";
         public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.json";
+        public readonly static string GAMESDATAFILECRASH = "./games_data_CRASH.json";
         public static List<Game> Games = new List<Game>();
 
         public static void LoadGamesData()
@@ -18,9 +21,27 @@ namespace Games_Launcher.Core
                 //string encryptedJson = File.ReadAllText(GAMESDATAFILE);
                 string json = File.ReadAllText(GAMESDATAFILE);
                 //string json = AES256.Decrypt(encryptedJson, CryptoUtils.defaultPassword);
-                Games = JsonConvert.DeserializeObject<List<Game>>(json);
+                List<Game> deJson;
+                try { deJson = JsonConvert.DeserializeObject<List<Game>>(json); }
+                catch { deJson = null; }
+                if (deJson == null)
+                {
+                    if (MessageBox.Show("El archivo de guardado esta corrrupto, se usara un archivo antiguo como respaldo, quiere guardar el archivo corrupto?", "Advertencia", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    {
+                        File.WriteAllText(GAMESDATAFILECRASH, json);
+                        Process.Start("explorer.exe", "/select,\"" + Path.GetFullPath(GAMESDATAFILECRASH) + "\"");
+                    }
+                    json = File.ReadAllText(GAMESDATAFILEOLD);
+                    File.WriteAllText(GAMESDATAFILE, json);
+                    Games = JsonConvert.DeserializeObject<List<Game>>(json);
+
+                }
+                else
+                    Games = deJson;
+
             }
         }
+        
 
         public static void SaveGamesData()
         {

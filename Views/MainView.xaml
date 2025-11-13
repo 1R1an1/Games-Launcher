@@ -19,12 +19,19 @@
                 <WrapPanel HorizontalAlignment="Center" Margin="10, 5" VerticalAlignment="Center" x:Name="Juegos"/>
             </ScrollViewer>
         </Border>
-        <Button x:Name="BTNAgregar"
-                Style="{StaticResource ButtonStyle}"
-                FontSize="25"
-                VerticalAlignment="Bottom"
-                Margin="0,0,0,17.5"
-                Content="Agregar juego" Click="BTNAgregar_Click"
-                />
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Margin="0,0,0,17.5" Orientation="Horizontal">
+            
+            <Button x:Name="BTNAgregar"
+                    Style="{StaticResource ButtonStyle}"
+                    FontSize="25"
+                    Margin="0,0,5,0"
+                    Content="Agregar juego" Click="BTNAgregar_Click"/>
+            <Button x:Name="BTNOpenFolder"
+                    Style="{StaticResource ButtonStyle}"
+                    FontSize="25"
+                    Margin="5,0,0,0"
+                    Content="📁" Click="BTNOpenFolder_Click"/>
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -36,6 +36,10 @@ namespace Games_Launcher
             ////MainWindow = windoww;
             //windoww.Show();
         }
-        private void Current_Exit(object sender, ExitEventArgs e) => GamesInfo.SaveGamesData();
+        private void Current_Exit(object sender, ExitEventArgs e)
+        {
+            window.InvokeEvent();
+            GamesInfo.SaveGamesData();
+        }
     }
 }

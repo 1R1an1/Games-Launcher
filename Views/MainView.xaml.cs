@@ -1,6 +1,8 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
 using Microsoft.Win32;
+using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -50,5 +52,10 @@ namespace Games_Launcher.Views
         //}
 
         private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
+
+        private void BTNOpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe", Path.GetFullPath("./"));
+        }
     }
 }

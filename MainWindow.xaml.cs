@@ -25,9 +25,11 @@ namespace Games_Launcher
         }
         private void b_cerrar_Click(object sender, RoutedEventArgs e)
         {
-            CloseEvent?.Invoke();
+            InvokeEvent();
             Close();
         }
+        public void InvokeEvent() => CloseEvent?.Invoke();
+
         private void b_minimizar_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
