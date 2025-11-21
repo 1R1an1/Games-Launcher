@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>Img\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FortiCryptBC">
@@ -157,13 +157,19 @@
     <Resource Include="Template new window.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="icon.ico" />
+    <Resource Include="Img\iconOld.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="iconW.ico" />
+    <Resource Include="Img\iconOldW.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="ErrorImg.png" />
+    <Resource Include="Img\ErrorImg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Img\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Img\iconSVG.svg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
