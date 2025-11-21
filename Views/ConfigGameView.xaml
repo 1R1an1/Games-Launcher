@@ -11,7 +11,7 @@
         <Image x:Name="GameIconIMG"
                Width="64"
                Height="64"
-               Source="/ErrorImg.png"
+               Source="/Img/ErrorImg.png"
                HorizontalAlignment="Center"
                VerticalAlignment="Top"
                Margin="0,25"/>

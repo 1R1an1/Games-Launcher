@@ -7,7 +7,7 @@
         xmlns:Views="clr-namespace:Games_Launcher.Views"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight"
-        Title="Games Launcher" Icon="/icon.ico" MaxHeight="450" MaxWidth="790" Background="{StaticResource Background}"
+        Title="Games Launcher" Icon="/Img/icon.ico" MaxHeight="450" MaxWidth="790" Background="{StaticResource Background}"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" WindowStyle="None">
 
 
@@ -52,8 +52,8 @@
                    Foreground="White"
                    FontFamily="Consolas" FontWeight="Normal" FontSize="12"
                    Content="Games Launcher" MouseDown="MoveWindow"/>
-            <Image Source="/iconW.ico" HorizontalAlignment="Left" VerticalAlignment="Center"
-                   Height="15" Margin="11.5,0,0,0"/>
+            <Image Source="/Img/icon.ico" HorizontalAlignment="Left" VerticalAlignment="Center"
+                   Height="17" Margin="9.5,0,0,0"/>
             <!--#endregion-->
             
             <!-- #region Botones minimizar y cerrar-->

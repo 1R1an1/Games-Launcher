@@ -10,7 +10,7 @@ namespace Games_Launcher.Core
         public static BitmapImage GetGameIcon(string gamePath)
         {
             if (string.IsNullOrEmpty(gamePath) || !File.Exists(gamePath))
-                return new BitmapImage(new Uri("pack://application:,,,/ErrorImg.png"));
+                return new BitmapImage(new Uri("pack://application:,,,/Img/ErrorImg.png"));
 
             System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(gamePath);
 
