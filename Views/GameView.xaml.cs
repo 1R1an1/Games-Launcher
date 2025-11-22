@@ -1,12 +1,11 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
+using Games_Launcher.Windows;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Games_Launcher.Views
 {

@@ -3,7 +3,7 @@ using Games_Launcher.Views;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Games_Launcher
+namespace Games_Launcher.Windows
 {
     /// <summary>
     /// Lógica de interacción para MainConfigGameWindowWindow.xaml

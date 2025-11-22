@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="Games_Launcher.Views.FileDownloaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Games_Launcher.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" Height="500" Width="600" d:DesignWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Margin="10">
+                <Label HorizontalAlignment="Left" FontSize="17" Style="{StaticResource lblSNTNBG}" Content="URL del archivo:" ToolTip="Coloca la url por la que el programa va a descargar el archivo"/>
+                <TextBox x:Name="FileURLTBX" FontSize="17" Style="{StaticResource TBX}" HorizontalAlignment="Stretch" TextChanged="FileURLTBX_TextChanged"/>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label HorizontalAlignment="Left" FontSize="17" Style="{StaticResource lblSNTNBG}" Content="Nombre del archivo:" ToolTip="Es el nombre que va a tener al descargar el archivo"/>
+                <TextBox x:Name="FileNameTBX" FontSize="17" Style="{StaticResource TBX}" HorizontalAlignment="Stretch"/>
+            </StackPanel>
+            <StackPanel Margin="10">
+                <Label HorizontalAlignment="Left" FontSize="17" Style="{StaticResource lblSNTNBG}" Content="Ruta del archivo:" ToolTip="Es en donde se va a descargar el archivo"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="26"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="1" ToolTip="Seleccionar archivo del juego" HorizontalAlignment="Right" Padding="0" FontSize="15" Height="26" Width="26" x:Name="SelectGamePathBTN" Style="{StaticResource ButtonStyle}" Content="📁" Margin="0,0,0,0" Click="SelectGamePathBTN_Click"/>
+                    <TextBox x:Name="FileDownloadTBX" FontSize="17" Style="{StaticResource TBX}" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+        <Button Grid.Row="1"
+                Style="{StaticResource ButtonStyle}"
+                Content="Descargar"
+                FontSize="20"
+                HorizontalAlignment="Stretch"
+                Margin="10, 5"
+                Padding="0,5" Click="Button_Click"/>
+        <RichTextBox x:Name="ConsoleOutput"
+                     Margin="10"
+                     Grid.Row="2"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     IsReadOnly="True"
+                     FontFamily="Consolas"
+                     FontSize="14"
+                     Background="{StaticResource NormalColorNormal}"
+                     Foreground="LightGray"/>
+    </Grid>
+</UserControl>
