@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Games_Launcher.Model;
+using Games_Launcher.Views;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Games_Launcher
+namespace Games_Launcher.Windows
 {
     /// <summary>
-    /// Lógica de interacción para MainWindow.xaml
+    /// Lógica de interacción para MainConfigGameWindowWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ConfigGameWindow : Window
     {
-        public event Action CloseEvent;
-        public MainWindow()
+        public ConfigGameWindow(Game game, GameView gameView)
         {
             InitializeComponent();
+            aaaaaaaa.Children.Add(new ConfigGameView(game, gameView));
             borde1.Visibility = Visibility.Visible;
         }
 
@@ -23,11 +24,8 @@ namespace Games_Launcher
         }
         private void b_cerrar_Click(object sender, RoutedEventArgs e)
         {
-            InvokeEvent();
             Close();
         }
-        public void InvokeEvent() => CloseEvent?.Invoke();
-
         private void b_minimizar_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;

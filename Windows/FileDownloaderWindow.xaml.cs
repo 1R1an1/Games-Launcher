@@ -1,22 +1,18 @@
-﻿using Games_Launcher.Model;
-using Games_Launcher.Views;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 
-namespace Games_Launcher
+namespace Games_Launcher.Windows
 {
     /// <summary>
-    /// Lógica de interacción para MainConfigGameWindowWindow.xaml
+    /// Lógica de interacción para FileDownloaderWindow.xaml
     /// </summary>
-    public partial class ConfigGameWindow : Window
+    public partial class FileDownloaderWindow : Window
     {
-        public ConfigGameWindow(Game game, GameView gameView)
+        public FileDownloaderWindow()
         {
             InitializeComponent();
-            aaaaaaaa.Children.Add(new ConfigGameView(game, gameView));
             borde1.Visibility = Visibility.Visible;
         }
-
         private void MoveWindow(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -24,6 +20,7 @@ namespace Games_Launcher
         }
         private void b_cerrar_Click(object sender, RoutedEventArgs e)
         {
+            CDU_Window._fd.Cancel();
             Close();
         }
         private void b_minimizar_Click(object sender, RoutedEventArgs e)

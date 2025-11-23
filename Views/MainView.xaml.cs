@@ -1,5 +1,6 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
+using Games_Launcher.Windows;
 using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -58,24 +59,21 @@ namespace Games_Launcher.Views
                     PlayTime = new TimeSpan(0)
                 };
                 GamesInfo.Games.Add(newGame);
-
+                
                 CreateGame(GamesInfo.Games.Last());
             }
         }
-        //public void UpdateGame()
-        //{
-        //    //Juegos.Children.Clear();
-        //    //foreach (Game game in GamesInfo.Games)
-        //    //{
-        //    //    CreateGame(game);
-        //    //}
-        //}
 
         private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5), DataContext = game }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
 
         private void BTNOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", Path.GetFullPath("./"));
+        }
+
+        private void BTNFileDownloader_Click(object sender, RoutedEventArgs e)
+        {
+            new FileDownloaderWindow().Show();
         }
     }
 }

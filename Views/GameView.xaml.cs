@@ -1,5 +1,6 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
+using Games_Launcher.Windows;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

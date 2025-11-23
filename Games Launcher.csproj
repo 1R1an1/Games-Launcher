@@ -38,8 +38,15 @@
     <ApplicationIcon>Img\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CustomMarshalers" />
     <Reference Include="FortiCryptBC">
       <HintPath>..\..\Projectos\Rain save manager\dll\FortiCryptBC.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.5.0, Culture=neutral, PublicKeyToken=8985beaab7ea3f04, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft-WindowsAPICodePack-Core.1.1.5\lib\net48\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.5.0, Culture=neutral, PublicKeyToken=8985beaab7ea3f04, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft-WindowsAPICodePack-Shell.1.1.5\lib\net48\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -47,6 +54,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -59,21 +67,29 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\FileDownloader.cs" />
     <Compile Include="Core\GameFunctions.cs" />
     <Compile Include="Core\GameMonitor.cs" />
     <Compile Include="Core\GamesInfo.cs" />
-    <Compile Include="ConfigGameWindow.xaml.cs">
+    <Compile Include="Windows\ConfigGameWindow.xaml.cs">
       <DependentUpon>ConfigGameWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FileDownloaderWindow.xaml.cs">
+      <DependentUpon>FileDownloaderWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\Game.cs" />
     <Compile Include="Views\ConfigGameView.xaml.cs">
       <DependentUpon>ConfigGameView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FileDownloaderView.xaml.cs">
+      <DependentUpon>FileDownloaderView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GameView.xaml.cs">
       <DependentUpon>GameView.xaml</DependentUpon>
@@ -82,9 +98,13 @@
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
-    <Page Include="ConfigGameWindow.xaml">
+    <Page Include="Windows\ConfigGameWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FileDownloaderWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -115,6 +135,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\ConfigGameView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FileDownloaderView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -170,6 +194,10 @@
     <Resource Include="Img\icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Img\downloadIMG.png" />
+    <Resource Include="Img\downloadIM2.png" />
+    <Content Include="Img\downloadImgSVG.svg" />
+    <Content Include="Img\downloadImgSVG2.svg" />
     <Content Include="Img\iconSVG.svg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
