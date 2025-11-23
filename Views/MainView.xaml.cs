@@ -1,9 +1,8 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
-using Microsoft.Win32;
+using Games_Launcher.Windows;
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -56,6 +55,11 @@ namespace Games_Launcher.Views
         private void BTNOpenFolder_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", Path.GetFullPath("./"));
+        }
+
+        private void BTNFileDownloader_Click(object sender, RoutedEventArgs e)
+        {
+            new FileDownloaderWindow().Show();
         }
     }
 }

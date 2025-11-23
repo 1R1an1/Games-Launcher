@@ -7,7 +7,7 @@
         xmlns:Views="clr-namespace:Games_Launcher.Views"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight"
-        Title="File Downloader" Icon="/Img/icon.ico" Background="{StaticResource Background}"
+        Title="File Downloader (Game Launcher)" Icon="/Img/icon.ico" Background="{StaticResource Background}"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" WindowStyle="None">
 
 
@@ -51,7 +51,7 @@
                    Height="30" Padding="35,8,0,0"
                    Foreground="White"
                    FontFamily="Consolas" FontWeight="Normal" FontSize="12"
-                   Content="File Downloader" MouseDown="MoveWindow"/>
+                   Content="File Downloader (Game Launcher)" MouseDown="MoveWindow"/>
             <Image Source="/Img/icon.ico" HorizontalAlignment="Left" VerticalAlignment="Center"
                    Height="17" Margin="9.5,0,0,0"/>
             <!--#endregion-->
