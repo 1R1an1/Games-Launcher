@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Windows.Media.Imaging;
 
@@ -57,6 +58,22 @@ namespace Games_Launcher.Core
             path = dialog.FileName;
 
             return a;
+        }
+
+        public static string UltimaVezJugado(DateTime fechaInicio)
+        {
+            DateTime hoy = DateTime.Today;
+            DateTime ayer = hoy.AddDays(-1);
+
+
+            if (fechaInicio == null)
+                return "00/00/0000";
+            else if (fechaInicio.Date == hoy)
+                return "Hoy";
+            else if (fechaInicio.Date == ayer)
+                return "Ayer";
+            else
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fechaInicio.ToString("dd MMM yyyy", new CultureInfo("es-ES")).Replace(".", ""));
         }
     }
 }

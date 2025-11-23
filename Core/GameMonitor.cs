@@ -12,7 +12,7 @@ namespace Games_Launcher.Core
     {
         private static readonly List<GameView> _views = new List<GameView>();
         private static bool _isRunning = false;
-        private static readonly object _lock = new Object();
+        private static readonly object _lock = new object();
         private static List<GameView> runingGames = new List<GameView>();
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Games_Launcher.Core
                         {
                             view.Dispatcher.Invoke(() =>
                             {
-                                view.BTNJugar.Margin = new Thickness(0, 0, 12, 0);
+                                view.BTNJugar.Margin = new Thickness(22.3, 0, 11.2, 0);
                                 view.BTNJugar.Content = "DETENER";
                                 view.BTNJugar.Tag = view.FindResource("DownloadColorNormal");
                                 view.BTNJugar.BorderBrush = (Brush)view.FindResource("DownloadColorMouseOver");
@@ -68,13 +68,14 @@ namespace Games_Launcher.Core
 
                             runingGames.Add(view);
                             view.IsRunning = true;
-                            view.starterTime = DateTime.Now;
+                            view.thisGame.LastPlayed = DateTime.Now;
+                            view.Dispatcher.Invoke(() => view.LBLLastOppend.Content = GameFunctions.UltimaVezJugado(view.thisGame.LastPlayed));
                         }
                         else if (!currentlyRunning && view.IsRunning)
                         {
                             view.Dispatcher.Invoke(() =>
                             {
-                                view.BTNJugar.Margin = new Thickness(0, 0, 23, 0);
+                                view.BTNJugar.Margin = new Thickness(32.3, 0, 23, 0);
                                 view.BTNJugar.Content = "JUGAR";
                                 view.BTNJugar.Tag = view.FindResource("JugarColorNormal");
                                 view.BTNJugar.BorderBrush = (Brush)view.FindResource("JugarColorMouseOver");
@@ -82,7 +83,7 @@ namespace Games_Launcher.Core
 
                             runingGames.Remove(view);
                             view.IsRunning = false;
-                            TimeSpan duration = DateTime.Now - view.starterTime;
+                            TimeSpan duration = DateTime.Now - view.thisGame.LastPlayed;
                             view.thisGame.PlayTime += duration;
 
                             view.Dispatcher.Invoke(() => view.LBLTimeOppend.Content = GameFunctions.ConvertTime(view.thisGame.PlayTime));
@@ -104,7 +105,7 @@ namespace Games_Launcher.Core
                 _isRunning = false;
                 foreach (var item in runingGames)
                 {
-                    item.thisGame.PlayTime += (DateTime.Now - item.starterTime);
+                    item.thisGame.PlayTime += (DateTime.Now - item.thisGame.LastPlayed);
                 }
                 runingGames.Clear();
             }

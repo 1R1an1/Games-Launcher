@@ -36,12 +36,12 @@
                                Foreground="White"
                                TextWrapping="Wrap" 
                                HorizontalAlignment="Left"
-                               Text="GAME TITLE"/>
+                               Text="GAMETITLE"/>
                     
                     <StackPanel Orientation="Vertical"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Right"
-                                Margin="12,0,0,0">
+                                Margin="9,0,0,0">
                         
                         <Label Style="{StaticResource lblSNTNBG}"
                                VerticalAlignment="Top"
@@ -60,7 +60,7 @@
                     <StackPanel Orientation="Vertical"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Right"
-                                Margin="35,0,0,0" Visibility="Visible">
+                                Margin="22.3,0,0,0" Visibility="Visible">
     
                         <Label Style="{StaticResource lblSNTNBG}"
                                VerticalAlignment="Top"
@@ -75,7 +75,7 @@
                                FontSize="13"
                                Padding="3, 0"
                                MaxWidth="125"
-                               Content="Ayer"/>
+                               Content="00/00/0000"/>
                     </StackPanel>
                 </StackPanel>
                 
@@ -90,20 +90,20 @@
                             BorderBrush="{StaticResource JugarColorMouseOver}"
                             Foreground="White"
                             Padding="5,1.5"
-                            Margin="32.3,0,23,0"
-                            Content="JUGAR" FontSize="17" Click="BTNJugar_Click"/>
+                            Margin="22.3,0,11.2,0"
+                            Content="DETENER" FontSize="17" Click="BTNJugar_Click"/>
                     <Button x:Name="BTNUp"
                             Style="{StaticResource ButtonStyle}"
-                            Tag="{StaticResource NormalColorNormal}"
-                            BorderBrush="{StaticResource NormalColorMouseOver}"
+                            Tag="{StaticResource NormalColorNormal2}"
+                            BorderBrush="{StaticResource NormalColorMouseOver2}"
                             Foreground="White"
                             Padding="7.5,1.5"
-                            Margin="60,0,0,0"
+                            Margin="62,0,0,0"
                             Content="↑" FontSize="17" Click="BTNUp_Click"/>
                     <Button x:Name="BTNDown"
                             Style="{StaticResource ButtonStyle}"
-                            Tag="{StaticResource NormalColorNormal}"
-                            BorderBrush="{StaticResource NormalColorMouseOver}"
+                            Tag="{StaticResource NormalColorNormal2}"
+                            BorderBrush="{StaticResource NormalColorMouseOver2}"
                             Foreground="White"
                             Padding="7.5,1.5"
                             Margin="0,0,0,0"
@@ -114,7 +114,7 @@
                             BorderBrush="{StaticResource EliminarColorMouseOver}"
                             Foreground="White"
                             Padding="5,1.5"
-                            Margin="91,0,0,0"
+                            Margin="76.6,0,0,0"
                             Content="ELIMINAR" FontSize="17" Click="BTNEliminar_Click"/>
                 </StackPanel>
                 

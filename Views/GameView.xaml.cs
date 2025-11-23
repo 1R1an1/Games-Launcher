@@ -78,6 +78,7 @@ namespace Games_Launcher.Views
             GameIconIMG.Source = GameFunctions.GetGameIcon(thisGame.Path);
             GameTitleTB.Text = thisGame.Name;
             LBLTimeOppend.Content = GameFunctions.ConvertTime(thisGame.PlayTime);
+            LBLLastOppend.Content = GameFunctions.UltimaVezJugado(thisGame.LastPlayed);
         }
 
         private void GameIconIMG_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

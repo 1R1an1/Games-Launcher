@@ -11,6 +11,7 @@ namespace Games_Launcher.Model
         public string ProcessName;
         public string Parameters;
         public string Path;
+        public DateTime LastPlayed;
 
 
         [JsonProperty("PlayTime")]
