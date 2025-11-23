@@ -193,6 +193,10 @@
     <Resource Include="Img\icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Img\downloadIMG.png" />
+    <Resource Include="Img\downloadIM2.png" />
+    <Content Include="Img\downloadImgSVG.svg" />
+    <Content Include="Img\downloadImgSVG2.svg" />
     <Content Include="Img\iconSVG.svg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

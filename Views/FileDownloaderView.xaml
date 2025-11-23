@@ -33,12 +33,35 @@
                 </Grid>
             </StackPanel>
         </StackPanel>
+
+        <Grid x:Name="GRIDControlersDownload"
+                    Grid.Row="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BTNPause"
+                    Style="{StaticResource ButtonStyle}"
+                    Content="Pausar"
+                    FontSize="20"
+                    HorizontalAlignment="Stretch"
+                    Margin="5,5,2.5,5"
+                    Padding="0,5" Click="BTNPause_Click"/>
+
+            <Button x:Name="BTNCancel"
+                    Style="{StaticResource ButtonStyle}"
+                    Content="Cancelar"
+                    FontSize="20"
+                    HorizontalAlignment="Stretch"
+                    Margin="2.5,5,5,5" Grid.Column="1"
+                    Padding="0,5" Click="BTNCancel_Click"/>
+        </Grid>
         <Button x:Name="BTNDownload" Grid.Row="1"
                 Style="{StaticResource ButtonStyle}"
                 Content="Descargar"
                 FontSize="20"
                 HorizontalAlignment="Stretch"
-                Margin="10, 5"
+                Margin="10, 5" Visibility="Visible"
                 Padding="0,5" Click="BTNDownload_Click"/>
         <RichTextBox x:Name="ConsoleOutput"
                      Margin="10"

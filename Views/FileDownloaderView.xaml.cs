@@ -17,6 +17,9 @@ namespace Games_Launcher.Views
     public partial class FileDownloaderView : UserControl
     {
         public FileDownloader _fd;
+        private bool _finishDownload = false;
+        private bool _pausedDownload = false;
+
         public FileDownloaderView()
         {
             InitializeComponent();
@@ -24,6 +27,8 @@ namespace Games_Launcher.Views
             FileDownloadTBX.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             Log("File Downloader iniciado.", Colors.LightGreen);
             _fd = new FileDownloader(this);
+            _fd.onFinish += _fd_onFinish;
+            _fd.onDownloadStarter += _fd_onDownloadStarter;
         }
 
         #region Consola
@@ -118,28 +123,83 @@ namespace Games_Launcher.Views
 
         private void BTNDownload_Click(object sender, RoutedEventArgs e)
         {
+            if (_finishDownload)
+            {
+                Window.GetWindow(this).Close();
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(FileDownloadTBX.Text) || string.IsNullOrWhiteSpace(FileNameTBX.Text) || string.IsNullOrWhiteSpace(FileURLTBX.Text))
             {
                 MessageBox.Show("Por favor, completa todos los campos antes de iniciar la descarga.", "Campos incompletos", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            FileDownloadTBX.IsEnabled = false;
-            FileDownloadTBX.Foreground = (Brush)FindResource("FontColorDisabled");
-            FileNameTBX.IsEnabled = false;
-            FileNameTBX.Foreground = (Brush)FindResource("FontColorDisabled");
-            FileURLTBX.IsEnabled = false;
-            FileURLTBX.Foreground = (Brush)FindResource("FontColorDisabled");
-            BTNDownload.IsEnabled = false;
-            BTNDownload.Tag = (Brush)FindResource("NormalColorDisabled");
-            BTNDownload.Foreground = (Brush)FindResource("FontColorDisabled");
+            SetEnabledControl(FileDownloadTBX, false);
+            SetEnabledControl(FileNameTBX, false);
+            SetEnabledControl(FileURLTBX, false);
+            SetEnabledControl(BTNDownload, false);
 
             string url = FileURLTBX.Text;
             string path = Path.Combine(FileDownloadTBX.Text, FileNameTBX.Text);
 
-            Task.Run(() =>
+            Task.Run(() => _fd.DownloadFileWithResume(url, path));
+        }
+
+        private void _fd_onFinish()
+        {
+            Dispatcher.Invoke(() =>
             {
-                _fd.DownloadFileWithResume(url, path);
+                _finishDownload = true;
+                GRIDControlersDownload.Visibility = Visibility.Collapsed;
+                BTNDownload.Visibility = Visibility.Visible;
+                SetEnabledControl(BTNDownload, true);
+                BTNDownload.Content = "Cerrar";
             });
+        }
+        private void _fd_onDownloadStarter()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                GRIDControlersDownload.Visibility = Visibility.Visible;
+                BTNDownload.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private void BTNCancel_Click(object sender, RoutedEventArgs e)
+        {
+            _fd.Cancel();
+        }
+
+        private void BTNPause_Click(object sender, RoutedEventArgs e)
+        {
+            if (_pausedDownload)
+            {
+                _pausedDownload = false;
+                BTNPause.Content = "Pausar";
+                Task.Run(() => _fd.Resume());
+            }
+            else
+            {
+                _pausedDownload = true;
+                BTNPause.Content = "Reanudar";
+                _fd.Pause();
+            }
+        }
+
+        private void SetEnabledControl(Control element, bool SetEnabledValue)
+        {
+            if (!SetEnabledValue)
+            {
+                element.IsEnabled = false;
+                element.Tag = (Brush)FindResource("NormalColorDisabled");
+                element.Foreground = (Brush)FindResource("FontColorDisabled");
+            }
+            else
+            {
+                element.IsEnabled = true;
+                element.Tag = (Brush)FindResource("NormalColorNormal");
+                element.Foreground = (Brush)FindResource("FontColor");
+            }
         }
     }
 }

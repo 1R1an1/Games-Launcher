@@ -20,7 +20,7 @@
             </ScrollViewer>
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                    Margin="0,0,0,17.5" Orientation="Horizontal">
+                    Margin="20,0,20,17.5" Orientation="Horizontal">
             
             <Button x:Name="BTNAgregar"
                     Style="{StaticResource ButtonStyle}"
@@ -35,8 +35,12 @@
             <Button x:Name="BTNFileDownloader"
                     Style="{StaticResource ButtonStyle}"
                     FontSize="25"
-                    Margin="70,0,0,0"
-                    Content="Descargar archivos" Click="BTNFileDownloader_Click"/>
+                    Margin="5,0,0,0"
+                    Padding="4,3.6"
+                    ToolTip="Abre una ventana para descargar un archivo"
+                    Click="BTNFileDownloader_Click">
+                <Image Source="/Img/downloadIMG.png" Width="30" Height="27"/>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>

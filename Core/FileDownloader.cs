@@ -25,6 +25,9 @@ namespace Games_Launcher.Core
         private FileDownloaderView viewLogs;
         private int i = 0;
 
+        public event Action onFinish;
+        public event Action onDownloadStarter;
+
         public FileDownloader(FileDownloaderView _viewLogs)
         {
             viewLogs = _viewLogs;
@@ -36,13 +39,15 @@ namespace Games_Launcher.Core
         public void Pause()
         {
             _pauseRequest.Reset();
-            viewLogs.ClearLogs();
             viewLogs.Log("La descarga ha sido pausada.", Colors.Cyan);
         }
         public void Resume()
         {
-            _pauseRequest.Set();
+            viewLogs.ClearLogs();
             viewLogs.Log("Reanudando descarga...", Colors.Cyan);
+            Thread.Sleep(1000);
+            _pauseRequest.Set();
+            i = 0;
         }
         public void Cancel() => _cts.Cancel();
 
@@ -101,6 +106,7 @@ namespace Games_Launcher.Core
                         if (MessageBox.Show("El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
                         {
                             viewLogs.Log("Descarga cancelada.");
+                            onFinish?.Invoke();
                             return;
                         }
                         else
@@ -135,6 +141,7 @@ namespace Games_Launcher.Core
                         viewLogs.Log($"Tamaño total del archivo: {fileSizeInfo.Value:0.00} {fileSizeInfo.Key}");
                         Thread.Sleep(500);
 
+                        onDownloadStarter?.Invoke();
                         i = 0;
                         try
                         {
@@ -152,6 +159,7 @@ namespace Games_Launcher.Core
                                 {
                                     if (i > 0)
                                         viewLogs.RemoveLastLog();
+
                                     double speed = bytesLastSecond / 1024.0; // KB/s
                                     string speedDisplay = speed >= 1024
                                         ? $"{(speed / 1024):0.00} MB/s"
@@ -170,6 +178,7 @@ namespace Games_Launcher.Core
                         catch (IOException io)
                         {
                             viewLogs.Log($"[Error de E/S] {io.Message}. Descarga cancelada por fallo de conexión.", Colors.Red);
+                            onFinish?.Invoke();
                         }
 
                         stopwatch.Stop();
@@ -178,18 +187,22 @@ namespace Games_Launcher.Core
                 }
                 File.Move(tempPath, finalPath);
                 viewLogs.Log($"\nDescarga completada. Archivo guardado como: {finalPath}", Colors.LightGreen);
+                onFinish?.Invoke();
             }
             catch (OperationCanceledException)
             {
                 viewLogs.Log("\nDescarga cancelada por el usuario.", Colors.Cyan);
+                onFinish?.Invoke();
             }
             catch (WebException we)
             {
                 viewLogs.Log($"\n[Error de red] {we.Message}. La descarga puede reanudarse más tarde.", Colors.Red);
+                onFinish?.Invoke();
             }
             catch (Exception ex)
             {
                 viewLogs.Log($"\n[Error general] {ex.Message}", Colors.Red);
+                onFinish?.Invoke();
             }
         }
     }
