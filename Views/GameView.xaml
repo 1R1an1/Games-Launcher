@@ -90,8 +90,8 @@
                             BorderBrush="{StaticResource JugarColorMouseOver}"
                             Foreground="White"
                             Padding="5,1.5"
-                            Margin="22.3,0,11.2,0"
-                            Content="DETENER" FontSize="17" Click="BTNJugar_Click"/>
+                            Margin="31.65,0,20.55,0"
+                            Content="JUGAR" FontSize="17" Click="BTNJugar_Click"/>
                     <Button x:Name="BTNUp"
                             Style="{StaticResource ButtonStyle}"
                             Tag="{StaticResource NormalColorNormal2}"

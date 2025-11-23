@@ -75,7 +75,7 @@ namespace Games_Launcher.Core
                         {
                             view.Dispatcher.Invoke(() =>
                             {
-                                view.BTNJugar.Margin = new Thickness(32.3, 0, 23, 0);
+                                view.BTNJugar.Margin = new Thickness(31.65, 0, 20.55, 0);
                                 view.BTNJugar.Content = "JUGAR";
                                 view.BTNJugar.Tag = view.FindResource("JugarColorNormal");
                                 view.BTNJugar.BorderBrush = (Brush)view.FindResource("JugarColorMouseOver");
