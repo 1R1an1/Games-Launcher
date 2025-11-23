@@ -1,6 +1,6 @@
 ﻿using Games_Launcher.Model;
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -12,7 +12,7 @@ namespace Games_Launcher.Core
         public readonly static string GAMESDATAFILE = "./games_data.json";
         public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.json";
         public readonly static string GAMESDATAFILECRASH = "./games_data_CRASH.json";
-        public static List<Game> Games = new List<Game>();
+        public static ObservableCollection<Game> Games = new ObservableCollection<Game>();
 
         public static void LoadGamesData()
         {
@@ -21,8 +21,8 @@ namespace Games_Launcher.Core
                 //string encryptedJson = File.ReadAllText(GAMESDATAFILE);
                 string json = File.ReadAllText(GAMESDATAFILE);
                 //string json = AES256.Decrypt(encryptedJson, CryptoUtils.defaultPassword);
-                List<Game> deJson;
-                try { deJson = JsonConvert.DeserializeObject<List<Game>>(json); }
+                ObservableCollection<Game> deJson;
+                try { deJson = JsonConvert.DeserializeObject<ObservableCollection<Game>>(json); }
                 catch { deJson = null; }
                 if (deJson == null)
                 {
@@ -33,7 +33,7 @@ namespace Games_Launcher.Core
                     }
                     json = File.ReadAllText(GAMESDATAFILEOLD);
                     File.WriteAllText(GAMESDATAFILE, json);
-                    Games = JsonConvert.DeserializeObject<List<Game>>(json);
+                    Games = JsonConvert.DeserializeObject<ObservableCollection<Game>>(json);
 
                 }
                 else

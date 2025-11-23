@@ -60,7 +60,7 @@
                     <StackPanel Orientation="Vertical"
                                 VerticalAlignment="Top"
                                 HorizontalAlignment="Right"
-                                Margin="35,0,0,0" Visibility="Collapsed">
+                                Margin="35,0,0,0" Visibility="Visible">
     
                         <Label Style="{StaticResource lblSNTNBG}"
                                VerticalAlignment="Top"
@@ -92,14 +92,29 @@
                             Padding="5,1.5"
                             Margin="32.3,0,23,0"
                             Content="JUGAR" FontSize="17" Click="BTNJugar_Click"/>
-
+                    <Button x:Name="BTNUp"
+                            Style="{StaticResource ButtonStyle}"
+                            Tag="{StaticResource NormalColorNormal}"
+                            BorderBrush="{StaticResource NormalColorMouseOver}"
+                            Foreground="White"
+                            Padding="7.5,1.5"
+                            Margin="60,0,0,0"
+                            Content="↑" FontSize="17" Click="BTNUp_Click"/>
+                    <Button x:Name="BTNDown"
+                            Style="{StaticResource ButtonStyle}"
+                            Tag="{StaticResource NormalColorNormal}"
+                            BorderBrush="{StaticResource NormalColorMouseOver}"
+                            Foreground="White"
+                            Padding="7.5,1.5"
+                            Margin="0,0,0,0"
+                            Content="↓" FontSize="17" Click="BTNDown_Click"/>
                     <Button x:Name="BTNEliminar"
                             Style="{StaticResource ButtonStyle}"
                             Tag="{StaticResource EliminarColorNormal}"
                             BorderBrush="{StaticResource EliminarColorMouseOver}"
                             Foreground="White"
                             Padding="5,1.5"
-                            Margin="45,0,0,0"
+                            Margin="91,0,0,0"
                             Content="ELIMINAR" FontSize="17" Click="BTNEliminar_Click"/>
                 </StackPanel>
                 

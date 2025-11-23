@@ -44,11 +44,8 @@ namespace Games_Launcher.Views
             Window.GetWindow(this).Close();
         }
 
-        private void CancelarBTN_Click(object sender, RoutedEventArgs e)
-        {
-            Window.GetWindow(this).Close();
-        }
-
+        private void CancelarBTN_Click(object sender, RoutedEventArgs e) => Window.GetWindow(this).Close();
+        
         private void GamePathTBX_TextChanged(object sender, TextChangedEventArgs e)
         {
             GameIconIMG.Source = GameFunctions.GetGameIcon(GamePathTBX.Text);

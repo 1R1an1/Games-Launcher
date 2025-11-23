@@ -1,12 +1,11 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Games_Launcher.Views
 {
@@ -85,6 +84,36 @@ namespace Games_Launcher.Views
         {
             ConfigGameWindow window = new ConfigGameWindow(thisGame, this);
             window.ShowDialog();
+        }
+
+        private void BTNUp_Click(object sender, RoutedEventArgs e)
+        {
+            GamesInfo.Games.Mover(GamesInfo.Games.IndexOf(thisGame), -1);
+        }
+
+        private void BTNDown_Click(object sender, RoutedEventArgs e)
+        {
+            GamesInfo.Games.Mover(GamesInfo.Games.IndexOf(thisGame), +1);
+        }
+
+        
+    }
+
+    public static class ObservableCollectionExtensions // clase estática, no genérica
+    {
+        public static void Mover<T>(this ObservableCollection<T> list, int index, int direccion)
+        {
+            // direccion: -1 = subir, +1 = bajar
+            if (list == null || index < 0 || index >= list.Count)
+                return; // índice fuera de rango
+
+            int nuevoIndice = index + direccion;
+
+            if (nuevoIndice < 0 || nuevoIndice >= list.Count)
+                return; // no hacemos nada si se sale del rango
+
+            // Intercambiar elementos
+            list.Move(index, nuevoIndice);
         }
     }
 }

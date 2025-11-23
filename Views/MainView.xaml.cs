@@ -1,9 +1,8 @@
 ﻿using Games_Launcher.Core;
 using Games_Launcher.Model;
-using Microsoft.Win32;
 using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -23,6 +22,27 @@ namespace Games_Launcher.Views
             {
                 CreateGame(game);
             }
+            GamesInfo.Games.CollectionChanged += Games_CollectionChanged;
+        }
+
+        private void Games_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Move && e.OldItems.Count == 1)
+            {
+                Game game = (Game)e.OldItems[0];
+
+                // Buscar el GameView correspondiente en el panel usando DataContext
+                GameView element = Juegos.Children
+                                         .OfType<GameView>()
+                                         .FirstOrDefault(x => x.DataContext == game);
+
+                if (element != null)
+                {
+                    // Remover de la posición antigua y agregar en la nueva
+                    Juegos.Children.Remove(element);
+                    Juegos.Children.Insert(e.NewStartingIndex, element);
+                }
+            }
         }
 
         private void BTNAgregar_Click(object sender, RoutedEventArgs e)
@@ -35,7 +55,7 @@ namespace Games_Launcher.Views
                     ProcessName = Path.GetFileNameWithoutExtension(path),
                     Path = path,
                     Parameters = "",
-                    PlayTime = new System.TimeSpan(0)
+                    PlayTime = new TimeSpan(0)
                 };
                 GamesInfo.Games.Add(newGame);
 
@@ -51,7 +71,7 @@ namespace Games_Launcher.Views
         //    //}
         //}
 
-        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
+        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5), DataContext = game }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
 
         private void BTNOpenFolder_Click(object sender, RoutedEventArgs e)
         {
