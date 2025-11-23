@@ -3,6 +3,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -20,56 +21,60 @@ namespace Games_Launcher.Views
             InitializeComponent();
             ConsoleOutput.Document.Blocks.Clear();
             FileDownloadTBX.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            Log("File Downloader iniciado.", Colors.LightGreen);
         }
 
         #region Consola
         public void Log(string message)
         {
-            var paragraph = new Paragraph(new Run(message))
+            ConsoleOutput.Dispatcher.Invoke(() =>
             {
-                Foreground = Brushes.LightGray,
-                Margin = new Thickness(0)
-            };
-            ConsoleOutput.Document.Blocks.Add(paragraph);
-            ConsoleOutput.Dispatcher.InvokeAsync(() =>
-            {
+                var paragraph = new Paragraph(new Run(message))
+                {
+                    Foreground = Brushes.LightGray,
+                    Margin = new Thickness(0)
+                };
+                ConsoleOutput.Document.Blocks.Add(paragraph);
                 ConsoleOutput.ScrollToEnd();
-            }, System.Windows.Threading.DispatcherPriority.Background);
+            });
         }
         public void Log(string message, SolidColorBrush color)
         {
-            var paragraph = new Paragraph(new Run(message))
+            ConsoleOutput.Dispatcher.Invoke(() =>
             {
-                Foreground = color,
-                Margin = new Thickness(0)
-            };
-            ConsoleOutput.Document.Blocks.Add(paragraph);
-            ConsoleOutput.Dispatcher.InvokeAsync(() =>
-            {
+                var paragraph = new Paragraph(new Run(message))
+                {
+                    Foreground = color,
+                    Margin = new Thickness(0)
+                };
+                ConsoleOutput.Document.Blocks.Add(paragraph);
                 ConsoleOutput.ScrollToEnd();
-            }, System.Windows.Threading.DispatcherPriority.Background);
+            });
         }
         public void Log(string message, Color color)
         {
-            var paragraph = new Paragraph(new Run(message))
+            ConsoleOutput.Dispatcher.Invoke(() =>
             {
-                Foreground = new SolidColorBrush(color),
-                Margin = new Thickness(0)
-            };
-            ConsoleOutput.Document.Blocks.Add(paragraph);
-            ConsoleOutput.Dispatcher.InvokeAsync(() =>
-            {
+                var paragraph = new Paragraph(new Run(message))
+                {
+                    Foreground = new SolidColorBrush(color),
+                    Margin = new Thickness(0)
+                };
+                ConsoleOutput.Document.Blocks.Add(paragraph);
                 ConsoleOutput.ScrollToEnd();
-            }, System.Windows.Threading.DispatcherPriority.Background);
+            });
         }
         public void RemoveLastLog()
         {
-            var blocks = ConsoleOutput.Document.Blocks;
-            if (blocks.Count > 0)
+            ConsoleOutput.Dispatcher.Invoke(() =>
             {
-                var last = blocks.LastBlock;
-                blocks.Remove(last);
-            }
+                var blocks = ConsoleOutput.Document.Blocks;
+                if (blocks.Count > 0)
+                {
+                    var last = blocks.LastBlock;
+                    blocks.Remove(last);
+                }
+            });
         }
         #endregion
 
@@ -115,6 +120,14 @@ namespace Games_Launcher.Views
             FileNameTBX.Foreground = (Brush)FindResource("FontColorDisabled");
             FileURLTBX.IsEnabled = false;
             FileURLTBX.Foreground = (Brush)FindResource("FontColorDisabled");
+
+            string url = FileURLTBX.Text;
+            string path = Path.Combine(FileDownloadTBX.Text, FileNameTBX.Text);
+
+            Task.Run(() =>
+            {
+                Downloader.DownloadFileWithResume(this, url, path);
+            });
         }
     }
 }
