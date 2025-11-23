@@ -16,7 +16,7 @@
                         <Setter Property="Template" Value="{StaticResource VerticalScrollBar}"/>
                     </Style>
                 </ScrollViewer.Resources>
-                <WrapPanel HorizontalAlignment="Center" Margin="10, 5" VerticalAlignment="Center" x:Name="Juegos"/>
+                <local:GridWrapPanel HorizontalAlignment="Center" Margin="10, 5" VerticalAlignment="Center" x:Name="Juegos"/>
             </ScrollViewer>
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
