@@ -34,21 +34,13 @@ namespace Games_Launcher.Views
                     ProcessName = Path.GetFileNameWithoutExtension(path),
                     Path = path,
                     Parameters = "",
-                    PlayTime = new System.TimeSpan(0)
+                    PlayTime = new TimeSpan(0)
                 };
                 GamesInfo.Games.Add(newGame);
-
+                
                 CreateGame(GamesInfo.Games.Last());
             }
         }
-        //public void UpdateGame()
-        //{
-        //    //Juegos.Children.Clear();
-        //    //foreach (Game game in GamesInfo.Games)
-        //    //{
-        //    //    CreateGame(game);
-        //    //}
-        //}
 
         private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5) }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
 

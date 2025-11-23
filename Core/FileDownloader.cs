@@ -15,26 +15,8 @@ namespace Games_Launcher.Core
         MB,
         GB
     }
-    public class FileDownloader
-    {
 
-        // void Main()
-        //{
-        //    Console.Write("Ingresa la URL del archivo: ");
-        //    string url = Console.ReadLine();
-
-        //    Console.Write("Nombre del archivo destino (ej. archivo.zip): ");
-        //    string finalPath = Console.ReadLine();
-
-        //    Downloader.DownloadFileWithResume(url, finalPath);
-
-        //    Console.WriteLine("Pulse una tecla para cerrar el programa . . .");
-        //    Console.ReadKey();
-        //}
-    }
-
-
-    public static class Downloader
+    public static class FileDownloader
     {
         public static int CalculateBufferSize(long fileSize)
         {

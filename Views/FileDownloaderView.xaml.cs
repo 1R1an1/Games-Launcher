@@ -126,7 +126,7 @@ namespace Games_Launcher.Views
 
             Task.Run(() =>
             {
-                Downloader.DownloadFileWithResume(this, url, path);
+                FileDownloader.DownloadFileWithResume(this, url, path);
             });
         }
     }
