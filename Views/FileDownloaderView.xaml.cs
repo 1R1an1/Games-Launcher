@@ -73,7 +73,7 @@ namespace Games_Launcher.Views
         }
         #endregion
 
-        private void SelectGamePathBTN_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void SelectGamePathBTN_Click(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
@@ -102,8 +102,13 @@ namespace Games_Launcher.Views
 
         }
 
-        private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(FileDownloadTBX.Text) || string.IsNullOrWhiteSpace(FileNameTBX.Text) || string.IsNullOrWhiteSpace(FileURLTBX.Text))
+            {
+                MessageBox.Show("Por favor, completa todos los campos antes de iniciar la descarga.", "Campos incompletos", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             FileDownloadTBX.IsEnabled = false;
             FileDownloadTBX.Foreground = (Brush)FindResource("FontColorDisabled");
             FileNameTBX.IsEnabled = false;
