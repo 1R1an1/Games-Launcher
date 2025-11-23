@@ -20,6 +20,7 @@ namespace Games_Launcher.Windows
         }
         private void b_cerrar_Click(object sender, RoutedEventArgs e)
         {
+            CDU_Window._fd.Cancel();
             Close();
         }
         private void b_minimizar_Click(object sender, RoutedEventArgs e)

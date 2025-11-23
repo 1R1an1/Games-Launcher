@@ -16,12 +16,14 @@ namespace Games_Launcher.Views
     /// </summary>
     public partial class FileDownloaderView : UserControl
     {
+        public FileDownloader _fd;
         public FileDownloaderView()
         {
             InitializeComponent();
             ConsoleOutput.Document.Blocks.Clear();
             FileDownloadTBX.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             Log("File Downloader iniciado.", Colors.LightGreen);
+            _fd = new FileDownloader(this);
         }
 
         #region Consola
@@ -76,6 +78,13 @@ namespace Games_Launcher.Views
                 }
             });
         }
+        public void ClearLogs()
+        {
+            ConsoleOutput.Dispatcher.Invoke(() =>
+            {
+                ConsoleOutput.Document.Blocks.Clear();
+            });
+        }
         #endregion
 
         private void SelectGamePathBTN_Click(object sender, RoutedEventArgs e)
@@ -107,7 +116,7 @@ namespace Games_Launcher.Views
 
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void BTNDownload_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(FileDownloadTBX.Text) || string.IsNullOrWhiteSpace(FileNameTBX.Text) || string.IsNullOrWhiteSpace(FileURLTBX.Text))
             {
@@ -120,13 +129,16 @@ namespace Games_Launcher.Views
             FileNameTBX.Foreground = (Brush)FindResource("FontColorDisabled");
             FileURLTBX.IsEnabled = false;
             FileURLTBX.Foreground = (Brush)FindResource("FontColorDisabled");
+            BTNDownload.IsEnabled = false;
+            BTNDownload.Tag = (Brush)FindResource("NormalColorDisabled");
+            BTNDownload.Foreground = (Brush)FindResource("FontColorDisabled");
 
             string url = FileURLTBX.Text;
             string path = Path.Combine(FileDownloadTBX.Text, FileNameTBX.Text);
 
             Task.Run(() =>
             {
-                FileDownloader.DownloadFileWithResume(this, url, path);
+                _fd.DownloadFileWithResume(url, path);
             });
         }
     }

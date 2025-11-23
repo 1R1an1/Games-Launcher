@@ -33,13 +33,13 @@
                 </Grid>
             </StackPanel>
         </StackPanel>
-        <Button Grid.Row="1"
+        <Button x:Name="BTNDownload" Grid.Row="1"
                 Style="{StaticResource ButtonStyle}"
                 Content="Descargar"
                 FontSize="20"
                 HorizontalAlignment="Stretch"
                 Margin="10, 5"
-                Padding="0,5" Click="Button_Click"/>
+                Padding="0,5" Click="BTNDownload_Click"/>
         <RichTextBox x:Name="ConsoleOutput"
                      Margin="10"
                      Grid.Row="2"

@@ -1,6 +1,4 @@
-﻿using Games_Launcher.Core;
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Input;
 
