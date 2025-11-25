@@ -7,7 +7,7 @@
         xmlns:Views="clr-namespace:Games_Launcher.Views"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight"
-        Title="Games Launcher" Icon="/Img/icon.ico" MaxHeight="462.5" Background="{StaticResource Background}"
+        Title="Games Launcher" Icon="/Img/icon.ico" MaxHeight="562.5" Background="{StaticResource Background}"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" WindowStyle="None">
 
 

@@ -40,7 +40,7 @@
   <ItemGroup>
     <Reference Include="CustomMarshalers" />
     <Reference Include="FortiCryptBC">
-      <HintPath>..\..\Projectos\Rain save manager\dll\FortiCryptBC.dll</HintPath>
+      <HintPath>Core\FortiCryptBC.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.5.0, Culture=neutral, PublicKeyToken=8985beaab7ea3f04, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft-WindowsAPICodePack-Core.1.1.5\lib\net48\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -179,6 +179,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Core\FortiCryptBC.xml" />
     <Resource Include="Template new window.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +200,9 @@
     <Content Include="Img\downloadImgSVG.svg" />
     <Content Include="Img\downloadImgSVG2.svg" />
     <Content Include="Img\iconSVG.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\FortiCryptBC.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
