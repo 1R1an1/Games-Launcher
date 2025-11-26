@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
@@ -12,6 +13,7 @@ namespace Games_Launcher.Core
 {
     public enum Size
     {
+        B,
         KB,
         MB,
         GB
@@ -21,7 +23,7 @@ namespace Games_Launcher.Core
     {
         private CancellationTokenSource _cts;
         private CancellationToken _cToken;
-        private ManualResetEvent _pauseRequest = new ManualResetEvent(true);
+        private AsyncManualResetEvent _pauseRequest = new AsyncManualResetEvent(true);
         private FileDownloaderView viewLogs;
         private int i = 0;
 
@@ -33,7 +35,7 @@ namespace Games_Launcher.Core
             viewLogs = _viewLogs;
             _cts = new CancellationTokenSource();
             _cToken = _cts.Token;
-            _pauseRequest = new ManualResetEvent(true);
+            _pauseRequest = new AsyncManualResetEvent(true);
         }
 
         public void Pause()
@@ -41,11 +43,11 @@ namespace Games_Launcher.Core
             _pauseRequest.Reset();
             viewLogs.Log("La descarga ha sido pausada.", Colors.Cyan);
         }
-        public void Resume()
+        public async Task Resume()
         {
             viewLogs.ClearLogs();
             viewLogs.Log("Reanudando descarga...", Colors.Cyan);
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
             _pauseRequest.Set();
             i = 0;
         }
@@ -72,11 +74,13 @@ namespace Games_Launcher.Core
                 return new KeyValuePair<Size, double>(Size.MB, (bytes / (1024.0 * 1024)));
             else if (bytes >= 1024)
                 return new KeyValuePair<Size, double>(Size.KB, (bytes / (1024.0)));
+            else if (bytes > 0 && bytes < 1024)
+                return new KeyValuePair<Size, double>(Size.B, bytes);
             else
-                return new KeyValuePair<Size, double>(Size.KB, 1);
+                return new KeyValuePair<Size, double>(Size.B, 0);
         }
 
-        public void DownloadFileWithResume(string url, string finalPath)
+        public async Task DownloadFileWithResume(string url, string finalPath)
         {
             viewLogs.Log($"Iniciando descarga desde: {url}");
             string tempPath = finalPath + ".tmp";
@@ -86,7 +90,7 @@ namespace Games_Launcher.Core
             {
                 existingLength = new FileInfo(tempPath).Length;
                 viewLogs.Log($"\nArchivo temporal encontrado. Reanudando desde {existingLength} bytes...");
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
             }
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -94,7 +98,7 @@ namespace Games_Launcher.Core
 
             try
             {
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
                 {
                     // Comprobar si el servidor soporta la reanudación
                     if (response.StatusCode == HttpStatusCode.PartialContent && existingLength > 0)
@@ -120,7 +124,7 @@ namespace Games_Launcher.Core
                     {
                         _cts = new CancellationTokenSource();
                         _cToken = _cts.Token;
-                        _pauseRequest = new ManualResetEvent(true);
+                        _pauseRequest = new AsyncManualResetEvent(true);
 
                         long totalBytes = existingLength;
                         Stopwatch stopwatch = new Stopwatch();
@@ -135,22 +139,22 @@ namespace Games_Launcher.Core
                         int bytesRead;
 
                         viewLogs.ClearLogs();
-                        Thread.Sleep(1000);
+                        await Task.Delay(1000);
                         viewLogs.Log("Descargando...");
-                        Thread.Sleep(200);
+                        await Task.Delay(200);
                         viewLogs.Log($"Tamaño total del archivo: {fileSizeInfo.Value:0.00} {fileSizeInfo.Key}");
-                        Thread.Sleep(500);
+                        await Task.Delay(500);
 
                         onDownloadStarter?.Invoke();
                         i = 0;
                         try
                         {
-                            while ((bytesRead = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+                            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                             {
                                 _cToken.ThrowIfCancellationRequested();
-                                _pauseRequest.WaitOne();
+                                await _pauseRequest.WaitAsync();
 
-                                fileStream.Write(buffer, 0, bytesRead);
+                                await fileStream.WriteAsync(buffer, 0, bytesRead);
                                 totalBytes += bytesRead;
                                 bytesLastSecond += bytesRead;
 

@@ -3,7 +3,6 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -141,8 +140,8 @@ namespace Games_Launcher.Views
 
             string url = FileURLTBX.Text;
             string path = Path.Combine(FileDownloadTBX.Text, FileNameTBX.Text);
-
-            Task.Run(() => _fd.DownloadFileWithResume(url, path));
+            
+            _ = _fd.DownloadFileWithResume(url, path);
         }
 
         private void _fd_onFinish()
@@ -176,7 +175,7 @@ namespace Games_Launcher.Views
             {
                 _pausedDownload = false;
                 BTNPause.Content = "Pausar";
-                Task.Run(() => _fd.Resume());
+                _ = _fd.Resume();
             }
             else
             {

@@ -74,6 +74,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\AsyncManualResetEvent.cs" />
     <Compile Include="Core\FileDownloader.cs" />
     <Compile Include="Core\GameFunctions.cs" />
     <Compile Include="Core\GameMonitor.cs" />
