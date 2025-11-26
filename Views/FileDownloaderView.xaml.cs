@@ -16,48 +16,22 @@ namespace Games_Launcher.Views
     public partial class FileDownloaderView : UserControl
     {
         public FileDownloader _fd;
+        public FileDownloaderUI _fdUI;
         private bool _finishDownload = false;
         private bool _pausedDownload = false;
 
         public FileDownloaderView()
         {
             InitializeComponent();
-            ConsoleOutput.Document.Blocks.Clear();
             FileDownloadTBX.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            
+            ConsoleOutput.Document.Blocks.Clear();
             Log("File Downloader iniciado.", Colors.LightGreen);
+            
             _fd = new FileDownloader();
-            _fd.onFinish += _fd_onFinish;
-            _fd.onDownloadStarter += _fd_onDownloadStarter;
-            _fd.OnLog += Log;
-            _fd.OnLogC += Log;
-            _fd.OnRemoveAllLogs += ClearLogs;
-            _fd.OnRemoveLastLog += RemoveLastLog;
-            _fd.OnProgress += _fd_OnProgress;
+            _fdUI = new FileDownloaderUI(this, _fd);
         }
-
-        private void _fd_OnProgress(long totalBytes, long bytesLastSecond, long fileSize, int i)
-        {
-            if (i > 0)
-                RemoveLastLog();
-
-            double speed = bytesLastSecond / 1024.0; // KB/s
-            string speedDisplay = speed >= 1024
-                ? $"{(speed / 1024):0.00} MB/s"
-                : $"{speed:0.00} KB/s";
-
-            double remaining = fileSize - totalBytes;
-            double etaSeconds = remaining / (speed * 1024);
-
-            TimeSpan etaTimeSpan = TimeSpan.FromSeconds(etaSeconds);
-            var progress = FileDownloaderUtils.CalculateFileSize(totalBytes);
-            var totalSize = FileDownloaderUtils.CalculateFileSize(fileSize);
-
-            Log($"[ESTADO DE DESCARGA]\n" +
-                $"  • Progreso     : {progress.Value:0.00} / {totalSize.Value:0.00} {progress.Key}\n" +
-                $"  • Velocidad    : {speedDisplay}\n" +
-                $"  • T. Estimado  : {etaTimeSpan:hh\\:mm\\:ss}");
-        }
-        private void _fd_onFinish()
+        public void FinishDownload()
         {
             _fd.Dispose();
             Dispatcher.Invoke(() =>
@@ -69,7 +43,7 @@ namespace Games_Launcher.Views
                 BTNDownload.Content = "Cerrar";
             });
         }
-        private void _fd_onDownloadStarter()
+        public void DownloadStarter()
         {
             Dispatcher.Invoke(() =>
             {
@@ -205,7 +179,7 @@ namespace Games_Launcher.Views
                 _pausedDownload = false;
                 BTNPause.Content = "Pausar";
                 SetEnabledControl(BTNCancel, true);
-                _ = _fd.Resume();
+                _fd.Resume();
             }
             else
             {

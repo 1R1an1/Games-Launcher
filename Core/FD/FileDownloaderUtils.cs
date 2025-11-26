@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Games_Launcher.Core.FD
 {
@@ -37,6 +38,24 @@ namespace Games_Launcher.Core.FD
                 return new KeyValuePair<Size, double>(Size.B, bytes);
             else
                 return new KeyValuePair<Size, double>(Size.B, 0);
+        }
+
+        public static string GetAvailableFileName(string fullPath)
+        {
+            string directory = Path.GetDirectoryName(fullPath) ?? "";
+            string filename = Path.GetFileNameWithoutExtension(fullPath);
+            string extension = Path.GetExtension(fullPath);
+
+            string result = fullPath;
+            int counter = 1;
+
+            while (File.Exists(result))
+            {
+                result = Path.Combine(directory, $"{filename} ({counter}){extension}");
+                counter++;
+            }
+
+            return result;
         }
     }
 }
