@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using static Games_Launcher.Core.FileDownloaderUtils;
+using static Games_Launcher.Core.FD.FileDownloaderUtils;
 
-namespace Games_Launcher.Core
+namespace Games_Launcher.Core.FD
 {
     public class FileDownloader : IDisposable
     {

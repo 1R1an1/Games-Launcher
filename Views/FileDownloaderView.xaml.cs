@@ -1,4 +1,4 @@
-﻿using Games_Launcher.Core;
+﻿using Games_Launcher.Core.FD;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.IO;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Games_Launcher.Core
+namespace Games_Launcher.Core.FD
 {
     public static class FileDownloaderUtils
     {
