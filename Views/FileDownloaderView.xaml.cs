@@ -25,9 +25,57 @@ namespace Games_Launcher.Views
             ConsoleOutput.Document.Blocks.Clear();
             FileDownloadTBX.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             Log("File Downloader iniciado.", Colors.LightGreen);
-            _fd = new FileDownloader(this);
+            _fd = new FileDownloader();
             _fd.onFinish += _fd_onFinish;
             _fd.onDownloadStarter += _fd_onDownloadStarter;
+            _fd.OnLog += Log;
+            _fd.OnLogC += Log;
+            _fd.OnRemoveAllLogs += ClearLogs;
+            _fd.OnRemoveLastLog += RemoveLastLog;
+            _fd.OnProgress += _fd_OnProgress;
+        }
+
+        private void _fd_OnProgress(long totalBytes, long bytesLastSecond, long fileSize, int i)
+        {
+            if (i > 0)
+                RemoveLastLog();
+
+            double speed = bytesLastSecond / 1024.0; // KB/s
+            string speedDisplay = speed >= 1024
+                ? $"{(speed / 1024):0.00} MB/s"
+                : $"{speed:0.00} KB/s";
+
+            double remaining = fileSize - totalBytes;
+            double etaSeconds = remaining / (speed * 1024);
+
+            TimeSpan etaTimeSpan = TimeSpan.FromSeconds(etaSeconds);
+            var progress = FileDownloaderUtils.CalculateFileSize(totalBytes);
+            var totalSize = FileDownloaderUtils.CalculateFileSize(fileSize);
+
+            Log($"[ESTADO DE DESCARGA]\n" +
+                $"  • Progreso     : {progress.Value:0.00} / {totalSize.Value:0.00} {progress.Key}\n" +
+                $"  • Velocidad    : {speedDisplay}\n" +
+                $"  • T. Estimado  : {etaTimeSpan:hh\\:mm\\:ss}");
+        }
+        private void _fd_onFinish()
+        {
+            _fd.Dispose();
+            Dispatcher.Invoke(() =>
+            {
+                _finishDownload = true;
+                GRIDControlersDownload.Visibility = Visibility.Collapsed;
+                BTNDownload.Visibility = Visibility.Visible;
+                SetEnabledControl(BTNDownload, true);
+                BTNDownload.Content = "Cerrar";
+            });
+        }
+        private void _fd_onDownloadStarter()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                GRIDControlersDownload.Visibility = Visibility.Visible;
+                BTNDownload.Visibility = Visibility.Collapsed;
+            });
         }
 
         #region Consola
@@ -137,31 +185,12 @@ namespace Games_Launcher.Views
             SetEnabledControl(FileNameTBX, false);
             SetEnabledControl(FileURLTBX, false);
             SetEnabledControl(BTNDownload, false);
+            SetEnabledControl(SelectGamePathBTN, false);
 
             string url = FileURLTBX.Text;
             string path = Path.Combine(FileDownloadTBX.Text, FileNameTBX.Text);
             
             _ = _fd.DownloadFileWithResume(url, path);
-        }
-
-        private void _fd_onFinish()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                _finishDownload = true;
-                GRIDControlersDownload.Visibility = Visibility.Collapsed;
-                BTNDownload.Visibility = Visibility.Visible;
-                SetEnabledControl(BTNDownload, true);
-                BTNDownload.Content = "Cerrar";
-            });
-        }
-        private void _fd_onDownloadStarter()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                GRIDControlersDownload.Visibility = Visibility.Visible;
-                BTNDownload.Visibility = Visibility.Collapsed;
-            });
         }
 
         private void BTNCancel_Click(object sender, RoutedEventArgs e)
@@ -175,12 +204,14 @@ namespace Games_Launcher.Views
             {
                 _pausedDownload = false;
                 BTNPause.Content = "Pausar";
+                SetEnabledControl(BTNCancel, true);
                 _ = _fd.Resume();
             }
             else
             {
                 _pausedDownload = true;
                 BTNPause.Content = "Reanudar";
+                SetEnabledControl(BTNCancel, false);
                 _fd.Pause();
             }
         }

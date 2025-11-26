@@ -76,6 +76,7 @@
     </ApplicationDefinition>
     <Compile Include="Core\AsyncManualResetEvent.cs" />
     <Compile Include="Core\FileDownloader.cs" />
+    <Compile Include="Core\FileDownloaderUtils.cs" />
     <Compile Include="Core\GameFunctions.cs" />
     <Compile Include="Core\GameMonitor.cs" />
     <Compile Include="Core\GamesInfo.cs" />

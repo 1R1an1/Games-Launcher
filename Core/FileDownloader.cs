@@ -1,6 +1,4 @@
-﻿using Games_Launcher.Views;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -8,31 +6,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using static Games_Launcher.Core.FileDownloaderUtils;
 
 namespace Games_Launcher.Core
 {
-    public enum Size
-    {
-        B,
-        KB,
-        MB,
-        GB
-    }
-
-    public class FileDownloader
+    public class FileDownloader : IDisposable
     {
         private CancellationTokenSource _cts;
         private CancellationToken _cToken;
         private AsyncManualResetEvent _pauseRequest = new AsyncManualResetEvent(true);
-        private FileDownloaderView viewLogs;
         private int i = 0;
 
+        // Eventos para comunicar a la UI
+        public event Action OnRemoveAllLogs;
+        public event Action OnRemoveLastLog;
+        public event Action<string> OnLog;
+        public event Action<string, Color> OnLogC;
+        public event Action<long, long, long, int> OnProgress;
         public event Action onFinish;
         public event Action onDownloadStarter;
 
-        public FileDownloader(FileDownloaderView _viewLogs)
+        public FileDownloader()
         {
-            viewLogs = _viewLogs;
             _cts = new CancellationTokenSource();
             _cToken = _cts.Token;
             _pauseRequest = new AsyncManualResetEvent(true);
@@ -41,55 +36,30 @@ namespace Games_Launcher.Core
         public void Pause()
         {
             _pauseRequest.Reset();
-            viewLogs.Log("La descarga ha sido pausada.", Colors.Cyan);
+            OnLogC?.Invoke("La descarga ha sido pausada.", Colors.Cyan);
         }
         public async Task Resume()
         {
-            viewLogs.ClearLogs();
-            viewLogs.Log("Reanudando descarga...", Colors.Cyan);
+            OnLogC?.Invoke("Reanudando descarga...", Colors.Cyan);
             await Task.Delay(1000);
+            OnRemoveLastLog?.Invoke();
+            OnRemoveLastLog?.Invoke();
+            OnRemoveLastLog?.Invoke();
             _pauseRequest.Set();
             i = 0;
         }
         public void Cancel() => _cts.Cancel();
 
-        private int CalculateBufferSize(long fileSize)
-        {
-            int bufferSize = (int)(fileSize / 100);
-            return Clamp(bufferSize, 16 * 1024, 256 * 1024);
-        }
-        private int Clamp(int value, int min, int max)
-        {
-            if (value < min)
-                return min;
-            if (value > max)
-                return max;
-            return value;
-        }
-        private KeyValuePair<Size, double> CalculateFileSize(long bytes)
-        {
-            if (bytes >= 1024 * 1024 * 1024)
-                return new KeyValuePair<Size, double>(Size.GB, (bytes / (1024.0 * 1024 * 1024)));
-            else if (bytes >= 1024 * 1024)
-                return new KeyValuePair<Size, double>(Size.MB, (bytes / (1024.0 * 1024)));
-            else if (bytes >= 1024)
-                return new KeyValuePair<Size, double>(Size.KB, (bytes / (1024.0)));
-            else if (bytes > 0 && bytes < 1024)
-                return new KeyValuePair<Size, double>(Size.B, bytes);
-            else
-                return new KeyValuePair<Size, double>(Size.B, 0);
-        }
-
         public async Task DownloadFileWithResume(string url, string finalPath)
         {
-            viewLogs.Log($"Iniciando descarga desde: {url}");
+            //OnLog?.Invoke($"Iniciando descarga desde: {url}");
             string tempPath = finalPath + ".tmp";
             long existingLength = 0;
 
             if (File.Exists(tempPath))
             {
                 existingLength = new FileInfo(tempPath).Length;
-                viewLogs.Log($"\nArchivo temporal encontrado. Reanudando desde {existingLength} bytes...");
+                OnLog?.Invoke($"Archivo temporal encontrado. Reanudando desde {CalculateFileSize(existingLength).Value:0.00} {CalculateFileSize(existingLength).Key}...");
                 await Task.Delay(1000);
             }
 
@@ -103,13 +73,13 @@ namespace Games_Launcher.Core
                     // Comprobar si el servidor soporta la reanudación
                     if (response.StatusCode == HttpStatusCode.PartialContent && existingLength > 0)
                     {
-                        viewLogs.Log("El servidor soporta la reanudación de la descarga.");
+                        OnLog?.Invoke("El servidor soporta la reanudación de la descarga.");
                     }
                     else if (existingLength > 0)
                     {
                         if (MessageBox.Show("El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
                         {
-                            viewLogs.Log("Descarga cancelada.");
+                            OnLog?.Invoke("Descarga cancelada.");
                             onFinish?.Invoke();
                             return;
                         }
@@ -122,10 +92,6 @@ namespace Games_Launcher.Core
                     using (Stream responseStream = response.GetResponseStream())
                     using (FileStream fileStream = new FileStream(tempPath, FileMode.Append, FileAccess.Write, FileShare.None))
                     {
-                        _cts = new CancellationTokenSource();
-                        _cToken = _cts.Token;
-                        _pauseRequest = new AsyncManualResetEvent(true);
-
                         long totalBytes = existingLength;
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
@@ -138,11 +104,11 @@ namespace Games_Launcher.Core
                         byte[] buffer = new byte[CalculateBufferSize(fileSize)];
                         int bytesRead;
 
-                        viewLogs.ClearLogs();
+                        //OnRemoveAllLogs?.Invoke();
                         await Task.Delay(1000);
-                        viewLogs.Log("Descargando...");
+                        OnLog?.Invoke("Descargando...");
                         await Task.Delay(200);
-                        viewLogs.Log($"Tamaño total del archivo: {fileSizeInfo.Value:0.00} {fileSizeInfo.Key}");
+                        OnLog?.Invoke($"Tamaño total del archivo: {fileSizeInfo.Value:0.00} {fileSizeInfo.Key}");
                         await Task.Delay(500);
 
                         onDownloadStarter?.Invoke();
@@ -161,25 +127,7 @@ namespace Games_Launcher.Core
                                 // Mostrar progreso cada segundo
                                 if (secondTimer.ElapsedMilliseconds >= 1000)
                                 {
-                                    if (i > 0)
-                                        viewLogs.RemoveLastLog();
-
-                                    double speed = bytesLastSecond / 1024.0; // KB/s
-                                    string speedDisplay = speed >= 1024
-                                        ? $"{(speed / 1024):0.00} MB/s"
-                                        : $"{speed:0.00} KB/s";
-
-                                    double remaining = fileSize - totalBytes;
-                                    double etaSeconds = remaining / (speed * 1024);
-                                
-                                    TimeSpan etaTimeSpan = TimeSpan.FromSeconds(etaSeconds);
-                                    var progress = CalculateFileSize(totalBytes);
-                                    var totalSize = CalculateFileSize(fileSize);
-
-                                    viewLogs.Log($"[ESTADO DE DESCARGA]\n" +
-                                                 $"  • Progreso     : {progress.Value:0.00} / {totalSize.Value:0.00} {progress.Key}\n" +
-                                                 $"  • Velocidad    : {speedDisplay}\n" +
-                                                 $"  • T. Estimado  : {etaTimeSpan:hh\\:mm\\:ss}\n");
+                                    OnProgress?.Invoke(totalBytes, bytesLastSecond, fileSize, i);
                                     bytesLastSecond = 0;
                                     secondTimer.Restart();
                                     i++;
@@ -188,7 +136,7 @@ namespace Games_Launcher.Core
                         }
                         catch (IOException io)
                         {
-                            viewLogs.Log($"[Error de E/S] {io.Message}. Descarga cancelada por fallo de conexión.", Colors.Red);
+                            OnLogC?.Invoke($"[Error de E/S] {io.Message}. Descarga cancelada por fallo de conexión.", Colors.Red);
                             onFinish?.Invoke();
                         }
 
@@ -197,24 +145,62 @@ namespace Games_Launcher.Core
 
                 }
                 File.Move(tempPath, finalPath);
-                viewLogs.Log($"\nDescarga completada. Archivo guardado como: {finalPath}", Colors.LightGreen);
+                OnLogC?.Invoke($"\nDescarga completada. Archivo guardado como: {finalPath}", Colors.LightGreen);
                 onFinish?.Invoke();
             }
             catch (OperationCanceledException)
             {
-                viewLogs.Log("\nDescarga cancelada por el usuario.", Colors.Cyan);
+                OnLogC?.Invoke("\nDescarga cancelada por el usuario.", Colors.Cyan);
                 onFinish?.Invoke();
             }
             catch (WebException we)
             {
-                viewLogs.Log($"\n[Error de red] {we.Message}. La descarga puede reanudarse más tarde.", Colors.Red);
+                OnLogC?.Invoke($"\n[Error de red] {we.Message}. La descarga puede reanudarse más tarde.", Colors.Red);
                 onFinish?.Invoke();
             }
             catch (Exception ex)
             {
-                viewLogs.Log($"\n[Error general] {ex.Message}", Colors.Red);
+                OnLogC?.Invoke($"\n[Error general] {ex.Message}", Colors.Red);
                 onFinish?.Invoke();
             }
         }
+
+        #region Disposable implementation
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _cts?.Cancel();
+
+                _cts?.Dispose();
+                _cts = null;
+                _pauseRequest = null;
+
+                OnRemoveAllLogs = null;
+                OnLog = null;
+                OnLogC = null;
+                OnProgress = null;
+                onFinish = null;
+                onDownloadStarter = null;
+            }
+
+            _disposed = true;
+        }
+
+        ~FileDownloader()
+        {
+            Dispose(false);
+        }
+        #endregion
     }
 }
