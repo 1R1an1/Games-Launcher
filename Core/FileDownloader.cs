@@ -169,10 +169,17 @@ namespace Games_Launcher.Core
                                         ? $"{(speed / 1024):0.00} MB/s"
                                         : $"{speed:0.00} KB/s";
 
+                                    double remaining = fileSize - totalBytes;
+                                    double etaSeconds = remaining / (speed * 1024);
+                                
+                                    TimeSpan etaTimeSpan = TimeSpan.FromSeconds(etaSeconds);
                                     var progress = CalculateFileSize(totalBytes);
                                     var totalSize = CalculateFileSize(fileSize);
 
-                                    viewLogs.Log($"Progreso: {progress.Value:0.00} {progress.Key} / {totalSize.Value:0.00} {totalSize.Key} | Velocidad: {speedDisplay}");
+                                    viewLogs.Log($"[ESTADO DE DESCARGA]\n" +
+                                                 $"  • Progreso     : {progress.Value:0.00} / {totalSize.Value:0.00} {progress.Key}\n" +
+                                                 $"  • Velocidad    : {speedDisplay}\n" +
+                                                 $"  • T. Estimado  : {etaTimeSpan:hh\\:mm\\:ss}\n");
                                     bytesLastSecond = 0;
                                     secondTimer.Restart();
                                     i++;
