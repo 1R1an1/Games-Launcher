@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using static Games_Launcher.Core.FD.FileDownloaderUtils;
@@ -11,13 +12,19 @@ namespace Games_Launcher.Core.FD
     public class FileDownloader : IDisposable
     {
         public event Action<DownloadState> OnStateChanged;
-        public Func<Task<bool>> AskResumeDecision;
+        public Func<bool, Task<bool>> AskResumeDecision;
 
         private CancellationTokenSource _cts;
         private CancellationToken _cToken;
         
         private AsyncManualResetEvent _pauseRequest = new AsyncManualResetEvent(true);
         private int i = 0;
+
+        private readonly HttpClient _httpClient = new HttpClient
+        (new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate })
+        {
+            Timeout = Timeout.InfiniteTimeSpan
+        };
 
         public FileDownloader()
         {
@@ -44,16 +51,21 @@ namespace Games_Launcher.Core.FD
             string tempPath = finalPath + ".tmp";
             long existingLength = GetExistingLenght(tempPath);
 
-            HttpWebRequest request = CreateRequest(url, existingLength);
-            using HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            HttpRequestMessage request = CreateHttpRequest(url, existingLength);
 
-            try { existingLength = await HandleResumeSupport(response, existingLength); } catch (OperationCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
+            HttpResponseMessage response = null;
+            try { response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead); }
+            catch (TaskCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
+
+            try { existingLength = await HandleResumeSupportHttp(response, existingLength); }
+            catch (OperationCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
 
             try
             {
-                await DownloadCore(response, tempPath, existingLength);
-                File.Move(tempPath, GetAvailableFileName(finalPath));
-                OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.Finished, FinalPath = GetAvailableFileName(finalPath) });
+                await DownloadCoreHttp(response, tempPath, existingLength);
+                string final = GetAvailableFileName(finalPath);
+                File.Move(tempPath, GetAvailableFileName(final));
+                OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.Finished, FinalPath = GetAvailableFileName(final) });
             }
             catch (OperationCanceledException)
             {
@@ -82,42 +94,49 @@ namespace Games_Launcher.Core.FD
             OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.TempFound, FileSize = len });
             return len;
         }
-        private HttpWebRequest CreateRequest(string url, long existingLength)
+        private HttpRequestMessage CreateHttpRequest(string url, long existingLength)
         {
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            if (existingLength > 0)
-                req.AddRange(existingLength);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            return req;
+            if (existingLength > 0)
+                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(existingLength, null);
+
+            return request;
         }
-        private async Task<long> HandleResumeSupport(HttpWebResponse response, long existingLength)
+        private async Task<long> HandleResumeSupportHttp(HttpResponseMessage response, long existingLength)
         {
             if (response.StatusCode == HttpStatusCode.PartialContent)
             {
                 OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeSupported });
                 return existingLength;
             }
+            else if (response.StatusCode != HttpStatusCode.PartialContent && existingLength == 0)
+            {
+                if (await AskResumeDecision?.Invoke(true) != true)
+                    throw new OperationCanceledException();
+
+                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeSupported, Tick = 1 });  
+            }
 
             if (existingLength > 0)
             {
-                if (await AskResumeDecision?.Invoke() != true)
-                {
+                if (await AskResumeDecision?.Invoke(false) != true)
                     throw new OperationCanceledException();
-                }
 
-                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported });
+
+                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported, Tick = 0 });
                 return 0;
             }
 
             return existingLength;
         }
-        private async Task DownloadCore(HttpWebResponse response, string tempPath, long existingLenght)
+        private async Task DownloadCoreHttp(HttpResponseMessage response, string tempPath, long existingLenght)
         {
-            using Stream responseStream = response.GetResponseStream();
+            using Stream responseStream = await response.Content.ReadAsStreamAsync();
             using FileStream fileStream = new FileStream(tempPath, FileMode.Append, FileAccess.Write, FileShare.None);
 
             long totalBytes = existingLenght;
-            long fileSize = response.ContentLength + existingLenght;
+            long fileSize = (response.Content.Headers.ContentLength ?? 0) + existingLenght;
 
             byte[] buffer = new byte[CalculateBufferSize(fileSize)];
             int bytesRead;

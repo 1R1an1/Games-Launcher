@@ -1,5 +1,4 @@
-﻿using Games_Launcher.Views;
-using System;
+﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using static Games_Launcher.Core.FD.FileDownloaderUtils;
@@ -14,18 +13,7 @@ namespace Games_Launcher.Core.FD
         {
             _view = view;
             fd.OnStateChanged += Fd_OnStateChanged;
-            fd.AskResumeDecision = async () =>
-            {
-                return await _view.Dispatcher.InvokeAsync(() =>
-                {
-                    var result = MessageBox.Show(
-                        "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?",
-                        "Reanudar descarga",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning);
-                    return result == MessageBoxResult.Yes;
-                });
-            };
+            fd.AskResumeDecision = Fd_AskResumeDecision;
         }
 
         private void Fd_OnStateChanged(DownloadState obj)
@@ -39,7 +27,9 @@ namespace Games_Launcher.Core.FD
                     _view.Log("El servidor soporta la reanudación de la descarga.");
                     break;
                 case DownloadStatus.ResumeNotSupported:
-                    _view.Log("El servidor no soporta reanudación. Iniciando descarga desde cero...", Colors.OrangeRed);
+                    _view.Log(obj.Tick == 0
+                              ? "El servidor no soporta reanudación. Iniciando descarga desde cero..."
+                              : "El servidor no soporta reanudacion. Continuando con la descarga...", Colors.OrangeRed);
                     break;
                 case DownloadStatus.Downloading:
                     _view.Log($"Tamaño total del archivo: {FormatFileSize(obj.FileSize)}\nDescargando archivo...");
@@ -57,7 +47,7 @@ namespace Games_Launcher.Core.FD
                         $"  • T. Estimado  : {etaString}");
                     break;
                 case DownloadStatus.Paused:
-                    _view.Log("La descarga ha sido pausada.", Colors.Cyan);
+                    _view.Log("\nLa descarga ha sido pausada.", Colors.Cyan);
                     break;
                 case DownloadStatus.Resumed:
                     _view.Log("Reanudando descarga...", Colors.Cyan);
@@ -90,6 +80,19 @@ namespace Games_Launcher.Core.FD
                     _view.FinishDownload();
                     break;
             }
+        }
+        private async Task<bool> Fd_AskResumeDecision(bool i)
+        {
+            return await _view.Dispatcher.InvokeAsync(() =>
+            {
+                var result = MessageBox.Show(
+                    i ? "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?"
+                    : "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar con la descarga?",
+                    "Reanudar descarga",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                return result == MessageBoxResult.Yes;
+            });
         }
     }
 }

@@ -15,8 +15,8 @@ namespace Games_Launcher.Views
     /// </summary>
     public partial class FileDownloaderView : UserControl, IFileDownloaderView
     {
-        public FileDownloader _fd;
-        public FileDownloaderUI _fdUI;
+        public readonly FileDownloader _fd;
+        private readonly FileDownloaderUI _fdUI;
         private bool _finishDownload = false;
         private bool _pausedDownload = false;
 
