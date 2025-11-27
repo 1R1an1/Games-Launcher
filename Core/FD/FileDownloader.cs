@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using static Games_Launcher.Core.FD.FileDownloaderUtils;
@@ -12,7 +13,7 @@ namespace Games_Launcher.Core.FD
     public class FileDownloader : IDisposable
     {
         public event Action<DownloadState> OnStateChanged;
-        public Func<bool, Task<bool>> AskResumeDecision;
+        public Func<byte, Task<bool>> AskResumeDecision;
 
         private CancellationTokenSource _cts;
         private CancellationToken _cToken;
@@ -48,36 +49,41 @@ namespace Games_Launcher.Core.FD
 
         public async Task DownloadFileWithResume(string url, string finalPath)
         {
-            string tempPath = finalPath + ".tmp";
-            long existingLength = GetExistingLenght(tempPath);
-
-            HttpRequestMessage request = CreateHttpRequest(url, existingLength);
-
-            HttpResponseMessage response = null;
-            try { response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead); }
-            catch (TaskCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
-
-            try { existingLength = await HandleResumeSupportHttp(response, existingLength); }
-            catch (OperationCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
-
             try
             {
-                await DownloadCoreHttp(response, tempPath, existingLength);
-                string final = GetAvailableFileName(finalPath);
-                File.Move(tempPath, GetAvailableFileName(final));
-                OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.Finished, FinalPath = GetAvailableFileName(final) });
-            }
-            catch (OperationCanceledException)
-            {
-                OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.CanceledUser });
-            }
-            catch (WebException we)
-            {
-                OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.ErrorNet, Error = we });
-            }
-            catch (IOException io)
-            {
-                OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.ErrorIO, Error = io });
+                string tempPath = finalPath + ".tmp";
+                long existingLength = GetExistingLenght(tempPath);
+
+                HttpRequestMessage request = CreateHttpRequest(url, existingLength);
+
+                HttpResponseMessage response = null;
+                try
+                { response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead); }
+                catch (TaskCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
+
+                try
+                { existingLength = await HandleResumeSupportHttp(response, existingLength, url); }
+                catch (OperationCanceledException) { OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Canceled }); return; }
+
+                try
+                {
+                    await DownloadCoreHttp(response, tempPath, existingLength);
+                    string final = GetAvailableFileName(finalPath);
+                    File.Move(tempPath, GetAvailableFileName(final));
+                    OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.Finished, FinalPath = GetAvailableFileName(final) });
+                }
+                catch (OperationCanceledException)
+                {
+                    OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.CanceledUser });
+                }
+                catch (WebException we)
+                {
+                    OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.ErrorNet, Error = we });
+                }
+                catch (IOException io)
+                {
+                    OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.ErrorIO, Error = io });
+                }
             }
             catch (Exception ex)
             {
@@ -103,33 +109,116 @@ namespace Games_Launcher.Core.FD
 
             return request;
         }
-        private async Task<long> HandleResumeSupportHttp(HttpResponseMessage response, long existingLength)
+
+        private async Task<ResumeSupport> DetectResumeSupport(string url, HttpResponseMessage response, long existingLength)
         {
+            // 1) Si el servidor devolvió 206, es 100% seguro que soporta resume
             if (response.StatusCode == HttpStatusCode.PartialContent)
             {
-                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeSupported });
-                return existingLength;
+                if (response.Content.Headers.ContentRange != null)
+                    return ResumeSupport.True;
+
+                // Caso raro: 206 sin Content-Range (mal configurado), pero lo tomamos como True igual
+                return ResumeSupport.True;
             }
-            else if (response.StatusCode != HttpStatusCode.PartialContent && existingLength == 0)
+
+            // 2) Si devolvió 200 y el cliente pedía reanudar, probablemente NO soporta resume
+            if (existingLength > 0 && response.StatusCode == HttpStatusCode.OK)
             {
-                if (await AskResumeDecision?.Invoke(true) != true)
+                // Confirmar con Accept-Ranges
+                if (response.Headers.AcceptRanges != null &&
+                    response.Headers.AcceptRanges.Contains("bytes") == false)
+                {
+                    return ResumeSupport.False;
+                }
+
+                // Confirmar con ausencia de Content-Range
+                if (response.Content.Headers.ContentRange == null)
+                    return ResumeSupport.False;
+            }
+
+            // 3) Si Accept-Ranges dice "bytes", normalmente sí soporta resume
+            if (response.Headers.AcceptRanges != null &&
+                response.Headers.AcceptRanges.Contains("bytes"))
+            {
+                return ResumeSupport.True;
+            }
+
+            // 4) HEAD test final para confirmación
+            var head = new HttpRequestMessage(HttpMethod.Head, url);
+            head.Headers.Range = new RangeHeaderValue(0, 0);
+
+            try
+            {
+                var headRes = await _httpClient.SendAsync(head, HttpCompletionOption.ResponseHeadersRead);
+
+                if (headRes.StatusCode == HttpStatusCode.PartialContent)
+                    return ResumeSupport.True;
+
+                if (headRes.Headers.AcceptRanges != null &&
+                    headRes.Headers.AcceptRanges.Contains("bytes"))
+                    return ResumeSupport.True;
+
+                if (headRes.Content.Headers.ContentRange != null)
+                    return ResumeSupport.True;
+            }
+            catch
+            {
+                // Si no pudimos hacer HEAD no concluimos nada
+                return ResumeSupport.Unknown;
+            }
+
+            return ResumeSupport.False;
+        }
+        private async Task<long> HandleResumeSupportHttp(HttpResponseMessage response, long existingLength, string url)
+        {
+            var support = await DetectResumeSupport(url, response, existingLength);
+
+            // ------------ Caso 1: Resume soportado ------------
+            if (support == ResumeSupport.True)
+            {
+                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeSupported });
+
+                return existingLength; // continuar desde donde quedó
+            }
+
+            // ------------ Caso 2: Resume NO soportado ------------
+            if (support == ResumeSupport.False)
+            {
+                // Si no había nada descargado
+                if (existingLength == 0)
+                {
+                    if (await AskResumeDecision?.Invoke(1) != true)
+                        throw new OperationCanceledException();
+
+                    OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported, Tick = 1 });
+                    return 0;
+                }
+
+                // Si el usuario debe decidir
+                if (await AskResumeDecision?.Invoke(0) != true)
                     throw new OperationCanceledException();
 
-                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeSupported, Tick = 1 });  
+                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported });
+
+                return 0;
             }
 
+            // ------------ Caso 3: Unknown (servidor raro) ------------
+            // Pedimos decisión SOLO si ya tenía progreso
             if (existingLength > 0)
             {
-                if (await AskResumeDecision?.Invoke(false) != true)
+                if (await AskResumeDecision?.Invoke(2) != true)
                     throw new OperationCanceledException();
 
-
                 OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported, Tick = 0 });
+
                 return 0;
             }
 
             return existingLength;
         }
+
         private async Task DownloadCoreHttp(HttpResponseMessage response, string tempPath, long existingLenght)
         {
             using Stream responseStream = await response.Content.ReadAsStreamAsync();

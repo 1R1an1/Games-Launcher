@@ -13,7 +13,12 @@ namespace Games_Launcher.Core.FD
             MB,
             GB
         }
-
+        public enum ResumeSupport
+        {
+            True,
+            False,
+            Unknown
+        }
         public static int CalculateBufferSize(long fileSize)
         {
             int bufferSize = (int)(fileSize / 100);

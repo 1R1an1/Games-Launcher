@@ -29,7 +29,9 @@ namespace Games_Launcher.Core.FD
                 case DownloadStatus.ResumeNotSupported:
                     _view.Log(obj.Tick == 0
                               ? "El servidor no soporta reanudación. Iniciando descarga desde cero..."
-                              : "El servidor no soporta reanudacion. Continuando con la descarga...", Colors.OrangeRed);
+                              : obj.Tick == 1
+                              ? "El servidor no soporta reanudacion. Continuando con la descarga..."
+                              : "No se pudo determinar si el servidor soporta la reanudacion de la descarga.. Continuando con la descarga...", Colors.OrangeRed);
                     break;
                 case DownloadStatus.Downloading:
                     _view.Log($"Tamaño total del archivo: {FormatFileSize(obj.FileSize)}\nDescargando archivo...");
@@ -81,13 +83,16 @@ namespace Games_Launcher.Core.FD
                     break;
             }
         }
-        private async Task<bool> Fd_AskResumeDecision(bool i)
+        private async Task<bool> Fd_AskResumeDecision(byte i)
         {
             return await _view.Dispatcher.InvokeAsync(() =>
             {
                 var result = MessageBox.Show(
-                    i ? "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?"
-                    : "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar con la descarga?",
+                    i == 0
+                    ? "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?"
+                    : i == 1 ?
+                    "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar con la descarga?":
+                    "No se pudo determinar si el servidor soporta la reanudacion de la descarga. ¿Deseas continuar igualmente con la descarga?",
                     "Reanudar descarga",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
