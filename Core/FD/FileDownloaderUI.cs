@@ -8,9 +8,9 @@ namespace Games_Launcher.Core.FD
 {
     public class FileDownloaderUI
     {
-        private FileDownloaderView _view;
+        private IFileDownloaderView _view;
 
-        public FileDownloaderUI(FileDownloaderView view, FileDownloader fd)
+        public FileDownloaderUI(IFileDownloaderView view, FileDownloader fd)
         {
             _view = view;
             fd.OnStateChanged += Fd_OnStateChanged;
@@ -33,7 +33,7 @@ namespace Games_Launcher.Core.FD
             switch (obj.Status)
             {
                 case DownloadStatus.TempFound:
-                    _view.Log($"Archivo temporal encontrado. Reanudando desde {CalculateFileSize(obj.FileSize).Value:0.00} {CalculateFileSize(obj.FileSize).Key}...");
+                    _view.Log($"Archivo temporal encontrado. Reanudando desde {FormatFileSize(obj.FileSize)}...");
                     break;
                 case DownloadStatus.ResumeSupported:
                     _view.Log("El servidor soporta la reanudación de la descarga.");
@@ -42,29 +42,19 @@ namespace Games_Launcher.Core.FD
                     _view.Log("El servidor no soporta reanudación. Iniciando descarga desde cero...", Colors.OrangeRed);
                     break;
                 case DownloadStatus.Downloading:
-                    _view.Log($"Tamaño total del archivo: {CalculateFileSize(obj.FileSize).Value:0.00} {CalculateFileSize(obj.FileSize).Key}\nDescargando archivo...");
+                    _view.Log($"Tamaño total del archivo: {FormatFileSize(obj.FileSize)}\nDescargando archivo...");
                     _view.DownloadStarter();
                     break;
                 case DownloadStatus.Progress:
                     if (obj.Tick > 0)
                         _view.RemoveLastLog();
 
-                    double speed = obj.BytesLastSecond / 1024.0; // KB/s
-                    string speedDisplay = speed >= 1024
-                        ? $"{(speed / 1024):0.00} MB/s"
-                        : $"{speed:0.00} KB/s";
-
-                    double remaining = obj.FileSize - obj.TotalBytes;
-                    double etaSeconds = remaining / (speed * 1024);
-
-                    TimeSpan etaTimeSpan = TimeSpan.FromSeconds(etaSeconds);
-                    var progress = CalculateFileSize(obj.TotalBytes);
-                    var totalSize = CalculateFileSize(obj.FileSize);
+                    FormatETAAndSpeed(obj, out string etaString, out string speedString);
 
                     _view.Log($"[ESTADO DE DESCARGA]\n" +
-                        $"  • Progreso     : {progress.Value:0.00} / {totalSize.Value:0.00} {progress.Key}\n" +
-                        $"  • Velocidad    : {speedDisplay}\n" +
-                        $"  • T. Estimado  : {etaTimeSpan:hh\\:mm\\:ss}");
+                        $"  • Progreso     : {FormatFileSize(obj.TotalBytes)} / {FormatFileSize(obj.FileSize)}\n" +
+                        $"  • Velocidad    : {speedString}\n" +
+                        $"  • T. Estimado  : {etaString}");
                     break;
                 case DownloadStatus.Paused:
                     _view.Log("La descarga ha sido pausada.", Colors.Cyan);

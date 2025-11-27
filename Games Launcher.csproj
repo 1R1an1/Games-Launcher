@@ -80,6 +80,7 @@
     <Compile Include="Core\FD\FileDownloader.cs" />
     <Compile Include="Core\FD\FileDownloaderUI.cs" />
     <Compile Include="Core\FD\FileDownloaderUtils.cs" />
+    <Compile Include="Core\FD\IFileDownloaderView.cs" />
     <Compile Include="Core\GameFunctions.cs" />
     <Compile Include="Core\GameMonitor.cs" />
     <Compile Include="Core\GamesInfo.cs" />

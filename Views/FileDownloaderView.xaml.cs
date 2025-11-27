@@ -13,7 +13,7 @@ namespace Games_Launcher.Views
     /// <summary>
     /// Lógica de interacción para FileDownloaderView.xaml
     /// </summary>
-    public partial class FileDownloaderView : UserControl
+    public partial class FileDownloaderView : UserControl, IFileDownloaderView
     {
         public FileDownloader _fd;
         public FileDownloaderUI _fdUI;

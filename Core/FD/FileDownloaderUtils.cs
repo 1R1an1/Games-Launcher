@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Games_Launcher.Core.FD
@@ -38,6 +39,21 @@ namespace Games_Launcher.Core.FD
                 return new KeyValuePair<Size, double>(Size.B, bytes);
             else
                 return new KeyValuePair<Size, double>(Size.B, 0);
+        }
+        public static string FormatFileSize(long bytes)
+        {
+            var sizePair = CalculateFileSize(bytes);
+            return $"{sizePair.Value:F2} {sizePair.Key}";
+        }
+        public static void FormatETAAndSpeed(DownloadState obj, out string etaString, out string speedString)
+        {
+            double speed = obj.BytesLastSecond / 1024.0; // KB/s
+            speedString = speed >= 1024
+                ? $"{(speed / 1024):0.00} MB/s"
+                : $"{speed:0.00} KB/s";
+
+            double etaSeconds = (obj.FileSize - obj.TotalBytes) / (speed * 1024);
+            etaString = TimeSpan.FromSeconds(etaSeconds).ToString("hh\\:mm\\:ss");
         }
 
         public static string GetAvailableFileName(string fullPath)
