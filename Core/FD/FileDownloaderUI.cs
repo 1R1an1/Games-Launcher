@@ -20,6 +20,7 @@ namespace Games_Launcher.Core.FD
         {
             switch (obj.Status)
             {
+                /*
                 case DownloadStatus.TempFound:
                     _view.Log($"Archivo temporal encontrado. Reanudando desde {FormatFileSize(obj.FileSize)}...");
                     break;
@@ -33,8 +34,19 @@ namespace Games_Launcher.Core.FD
                               ? "El servidor no soporta reanudacion. Continuando con la descarga..."
                               : "No se pudo determinar si el servidor soporta la reanudacion de la descarga.. Continuando con la descarga...", Colors.OrangeRed);
                     break;
+                    */
+                case DownloadStatus.Starting:
+                    _view.Log("Iniciando descarga...");
+                    break;
+                case DownloadStatus.ResumeDownloadResult:
+                    _view.RemoveLastLog();
+                    _view.Log($"[INFO ANTES DE LA DESCARGA]\n" +
+                              $"  • Tamaño total del archivo     : {FormatFileSize(obj.FileSize)}\n" +
+                              $"  • Tamaño de archivo temporal   : {FormatFileSize(obj.BytesLastSecond)}\n"+
+                              $"  • Servidor soporta reanudacion : {(obj.ResumeStatus == ResumeSupport.True ? "Si" : obj.ResumeStatus == ResumeSupport.False ? "No" : "Unknown") }");
+                    break;
                 case DownloadStatus.Downloading:
-                    _view.Log($"Tamaño total del archivo: {FormatFileSize(obj.FileSize)}\nDescargando archivo...");
+                    _view.Log("\nDescargando archivo...");
                     _view.DownloadStarter();
                     break;
                 case DownloadStatus.Progress:
@@ -43,10 +55,16 @@ namespace Games_Launcher.Core.FD
 
                     FormatETAAndSpeed(obj, out string etaString, out string speedString);
 
-                    _view.Log($"[ESTADO DE DESCARGA]\n" +
-                        $"  • Progreso     : {FormatFileSize(obj.TotalBytes)} / {FormatFileSize(obj.FileSize)}\n" +
-                        $"  • Velocidad    : {speedString}\n" +
-                        $"  • T. Estimado  : {etaString}");
+                    if (obj.TotalBytes == 0 && obj.FileSize == 0)
+                        _view.Log($"[ESTADO DE DESCARGA]\n" +
+                                  $"  • Progreso     : {FormatFileSize(obj.TotalBytes)} / ?? B\n" +
+                                  $"  • Velocidad    : {speedString}");
+                    else
+                        _view.Log($"[ESTADO DE DESCARGA]\n" +
+                                  $"  • Progreso     : {FormatFileSize(obj.TotalBytes)} / {FormatFileSize(obj.FileSize)}\n" +
+                                  $"  • Velocidad    : {speedString}\n" +
+                                  $"  • T. Estimado  : {etaString}");
+
                     break;
                 case DownloadStatus.Paused:
                     _view.Log("\nLa descarga ha sido pausada.", Colors.Cyan);
@@ -83,16 +101,13 @@ namespace Games_Launcher.Core.FD
                     break;
             }
         }
-        private async Task<bool> Fd_AskResumeDecision(byte i)
+        private async Task<bool> Fd_AskResumeDecision(bool i)
         {
             return await _view.Dispatcher.InvokeAsync(() =>
             {
                 var result = MessageBox.Show(
-                    i == 0
-                    ? "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar desde el principio (S/N)?"
-                    : i == 1 ?
-                    "El servidor no soporta la reanudación de la descarga. ¿Deseas continuar con la descarga?":
-                    "No se pudo determinar si el servidor soporta la reanudacion de la descarga. ¿Deseas continuar igualmente con la descarga?",
+                    i ? "El servidor no soporta reanudar la descarga.\n¿Deseas continuar la descarga desde cero?"
+                      : "¿Deseas continuar la descarga?",
                     "Reanudar descarga",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);

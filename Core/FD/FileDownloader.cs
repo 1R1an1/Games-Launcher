@@ -13,7 +13,7 @@ namespace Games_Launcher.Core.FD
     public class FileDownloader : IDisposable
     {
         public event Action<DownloadState> OnStateChanged;
-        public Func<byte, Task<bool>> AskResumeDecision;
+        public Func<bool, Task<bool>> AskResumeDecision;
 
         private CancellationTokenSource _cts;
         private CancellationToken _cToken;
@@ -51,6 +51,7 @@ namespace Games_Launcher.Core.FD
         {
             try
             {
+                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.Starting });
                 string tempPath = finalPath + ".tmp";
                 long existingLength = GetExistingLenght(tempPath);
 
@@ -70,6 +71,7 @@ namespace Games_Launcher.Core.FD
                     await DownloadCoreHttp(response, tempPath, existingLength);
                     string final = GetAvailableFileName(finalPath);
                     File.Move(tempPath, GetAvailableFileName(final));
+
                     OnStateChanged?.Invoke(new DownloadState() { Status = DownloadStatus.Finished, FinalPath = GetAvailableFileName(final) });
                 }
                 catch (OperationCanceledException)
@@ -105,7 +107,7 @@ namespace Games_Launcher.Core.FD
             var request = new HttpRequestMessage(HttpMethod.Get, url);
 
             if (existingLength > 0)
-                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(existingLength, null);
+                request.Headers.Range = new RangeHeaderValue(existingLength, null);
 
             return request;
         }
@@ -173,45 +175,27 @@ namespace Games_Launcher.Core.FD
         private async Task<long> HandleResumeSupportHttp(HttpResponseMessage response, long existingLength, string url)
         {
             var support = await DetectResumeSupport(url, response, existingLength);
-
-            // ------------ Caso 1: Resume soportado ------------
-            if (support == ResumeSupport.True)
+            
+            OnStateChanged?.Invoke(new DownloadState
             {
-                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeSupported });
+                Status = DownloadStatus.ResumeDownloadResult,
+                ResumeStatus = support,
+                FileSize = (response.Content.Headers.ContentLength ?? 0),
+                BytesLastSecond = existingLength
+            });
 
-                return existingLength; // continuar desde donde quedó
-            }
-
-            // ------------ Caso 2: Resume NO soportado ------------
-            if (support == ResumeSupport.False)
+            if (existingLength > 0 && support != ResumeSupport.True)
             {
-                // Si no había nada descargado
-                if (existingLength == 0)
-                {
-                    if (await AskResumeDecision?.Invoke(1) != true)
-                        throw new OperationCanceledException();
-
-                    OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported, Tick = 1 });
-                    return 0;
-                }
-
-                // Si el usuario debe decidir
-                if (await AskResumeDecision?.Invoke(0) != true)
+                if (await AskResumeDecision?.Invoke(true) != true)
                     throw new OperationCanceledException();
-
-                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported });
 
                 return 0;
             }
 
-            // ------------ Caso 3: Unknown (servidor raro) ------------
-            // Pedimos decisión SOLO si ya tenía progreso
-            if (existingLength > 0)
+            if (support != ResumeSupport.True)
             {
-                if (await AskResumeDecision?.Invoke(2) != true)
+                if (await AskResumeDecision?.Invoke(false) != true)
                     throw new OperationCanceledException();
-
-                OnStateChanged?.Invoke(new DownloadState { Status = DownloadStatus.ResumeNotSupported, Tick = 0 });
 
                 return 0;
             }

@@ -4,12 +4,11 @@ namespace Games_Launcher.Core.FD
 {
     public enum DownloadStatus
     {
-        //Starting,
+        Starting,
         //CheckingTemp,
         TempFound,
         //CreatingRequest,
-        ResumeSupported,
-        ResumeNotSupported,
+        ResumeDownloadResult,
         Downloading,
         Progress,
         Paused,
@@ -21,9 +20,16 @@ namespace Games_Launcher.Core.FD
         CanceledUser,
         Canceled
     }
+    public enum ResumeSupport
+    {
+        True,
+        False,
+        Unknown
+    }
     public class DownloadState
     {
         public DownloadStatus Status { get; set; }
+        public ResumeSupport ResumeStatus { get; set; }
         public Exception Error { get; set; }
         public string FinalPath { get; set; }
 
