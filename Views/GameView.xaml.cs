@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Games_Launcher.Views
 {
@@ -45,6 +46,9 @@ namespace Games_Launcher.Views
                         UseShellExecute = false,
                         WorkingDirectory = Path.GetDirectoryName(thisGame.Path)
                     });
+                    BTNJugar.IsEnabled = false;
+                    BTNJugar.Tag = (Brush)FindResource("NormalColorNormal2");
+                    BTNJugar.Foreground = (Brush)FindResource("FontColorDisabled2");
                 } catch
                 {
                     MessageBox.Show("No se pudo iniciar el juego. Verifica que la ruta y los parámetros sean correctos.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -101,7 +105,7 @@ namespace Games_Launcher.Views
         
     }
 
-    public static class ObservableCollectionExtensions // clase estática, no genérica
+    public static class ObservableCollectionExtensions
     {
         public static void Mover<T>(this ObservableCollection<T> list, int index, int direccion)
         {

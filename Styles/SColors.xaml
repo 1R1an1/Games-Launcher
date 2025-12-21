@@ -12,6 +12,7 @@
 
     <Brush x:Key="FontColor">#808080</Brush>
     <Brush x:Key="FontColorDisabled">#66808080</Brush>
+    <Brush x:Key="FontColorDisabled2">#BB808080</Brush>
 
     <!-- Button download color -->
     <Brush x:Key="DownloadColorNormal">#0081FF</Brush>
