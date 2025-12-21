@@ -19,7 +19,7 @@ namespace Games_Launcher.Views
         public MainView()
         {
             InitializeComponent();
-            foreach (Game game in GamesInfo.Games)
+            foreach (GameModel game in GamesInfo.Games)
             {
                 CreateGame(game);
             }
@@ -30,7 +30,7 @@ namespace Games_Launcher.Views
         {
             if (e.Action == NotifyCollectionChangedAction.Move && e.OldItems.Count == 1)
             {
-                Game game = (Game)e.OldItems[0];
+                GameModel game = (GameModel)e.OldItems[0];
 
                 // Buscar el GameView correspondiente en el panel usando DataContext
                 GameView element = Juegos.Children
@@ -50,7 +50,7 @@ namespace Games_Launcher.Views
         {
             if (GameFunctions.SelectGamePath(out string path) == true)
             {
-                Game newGame = new Game
+                GameModel newGame = new GameModel
                 {
                     Name = Path.GetFileNameWithoutExtension(path),
                     ProcessName = Path.GetFileNameWithoutExtension(path),
@@ -64,7 +64,7 @@ namespace Games_Launcher.Views
             }
         }
 
-        private void CreateGame(Game game) { var gamee = new GameView(game) { Margin = new Thickness(5), DataContext = game }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
+        private void CreateGame(GameModel game) { var gamee = new GameView(game) { Margin = new Thickness(5), DataContext = game }; Juegos.Children.Add(gamee); GameMonitor.Register(gamee); }
 
         private void BTNOpenFolder_Click(object sender, RoutedEventArgs e)
         {

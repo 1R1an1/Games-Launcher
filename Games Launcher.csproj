@@ -90,7 +90,7 @@
     <Compile Include="Windows\FileDownloaderWindow.xaml.cs">
       <DependentUpon>FileDownloaderWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\Game.cs" />
+    <Compile Include="Model\GameModel.cs" />
     <Compile Include="Views\ConfigGameView.xaml.cs">
       <DependentUpon>ConfigGameView.xaml</DependentUpon>
     </Compile>
@@ -175,6 +175,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include=".editorconfig" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

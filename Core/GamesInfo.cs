@@ -12,7 +12,7 @@ namespace Games_Launcher.Core
         public readonly static string GAMESDATAFILE = "./games_data.json";
         public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.json";
         public readonly static string GAMESDATAFILECRASH = "./games_data_CRASH.json";
-        public static ObservableCollection<Game> Games = new ObservableCollection<Game>();
+        public static ObservableCollection<GameModel> Games = new ObservableCollection<GameModel>();
 
         public static void LoadGamesData()
         {
@@ -21,8 +21,8 @@ namespace Games_Launcher.Core
                 //string encryptedJson = File.ReadAllText(GAMESDATAFILE);
                 string json = File.ReadAllText(GAMESDATAFILE);
                 //string json = AES256.Decrypt(encryptedJson, CryptoUtils.defaultPassword);
-                ObservableCollection<Game> deJson;
-                try { deJson = JsonConvert.DeserializeObject<ObservableCollection<Game>>(json); }
+                ObservableCollection<GameModel> deJson;
+                try { deJson = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json); }
                 catch { deJson = null; }
                 if (deJson == null)
                 {
@@ -33,7 +33,7 @@ namespace Games_Launcher.Core
                     }
                     json = File.ReadAllText(GAMESDATAFILEOLD);
                     File.WriteAllText(GAMESDATAFILE, json);
-                    Games = JsonConvert.DeserializeObject<ObservableCollection<Game>>(json);
+                    Games = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json);
 
                 }
                 else

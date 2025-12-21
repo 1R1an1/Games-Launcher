@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace Games_Launcher.Model
 {
-    public class Game
+    public class GameModel
     {
         public string Name;
         public string ProcessName;

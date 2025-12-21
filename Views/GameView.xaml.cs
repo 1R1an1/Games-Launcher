@@ -16,12 +16,12 @@ namespace Games_Launcher.Views
     /// </summary>
     public partial class GameView : UserControl
     {
-        public Game thisGame;
+        public GameModel thisGame;
         public Process[] _gameProcess;
         public bool IsRunning = false;
         public DateTime starterTime = DateTime.Now;
 
-        public GameView(Game Game)
+        public GameView(GameModel Game)
         {
             thisGame = Game;
             InitializeComponent();

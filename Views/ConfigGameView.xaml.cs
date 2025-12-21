@@ -12,9 +12,9 @@ namespace Games_Launcher.Views
     /// </summary>
     public partial class ConfigGameView : UserControl
     {
-        private Game _thisGame;
+        private GameModel _thisGame;
         private GameView _thisGameView;
-        public ConfigGameView(Game game, GameView gameView)
+        public ConfigGameView(GameModel game, GameView gameView)
         {
             _thisGame = game;
             _thisGameView = gameView;

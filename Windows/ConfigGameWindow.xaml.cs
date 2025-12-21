@@ -10,7 +10,7 @@ namespace Games_Launcher.Windows
     /// </summary>
     public partial class ConfigGameWindow : Window
     {
-        public ConfigGameWindow(Game game, GameView gameView)
+        public ConfigGameWindow(GameModel game, GameView gameView)
         {
             InitializeComponent();
             aaaaaaaa.Children.Add(new ConfigGameView(game, gameView));
