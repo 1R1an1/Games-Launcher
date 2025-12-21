@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System;
 
 namespace Games_Launcher.Core
 {
@@ -12,45 +13,107 @@ namespace Games_Launcher.Core
         public readonly static string GAMESDATAFILE = "./games_data.json";
         public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.json";
         public readonly static string GAMESDATAFILECRASH = "./games_data_CRASH.json";
-        public static ObservableCollection<GameModel> Games = new ObservableCollection<GameModel>();
+        public const int CURRENTDATAVERSION = 2;
+
+        private static AppModel _appData;
+        public static ObservableCollection<GameModel> Games => _appData.Games;
 
         public static void LoadGamesData()
         {
-            if (File.Exists(GAMESDATAFILE))
+            if (!File.Exists(GAMESDATAFILE))
             {
-                //string encryptedJson = File.ReadAllText(GAMESDATAFILE);
-                string json = File.ReadAllText(GAMESDATAFILE);
-                //string json = AES256.Decrypt(encryptedJson, CryptoUtils.defaultPassword);
-                ObservableCollection<GameModel> deJson;
-                try { deJson = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json); }
-                catch { deJson = null; }
-                if (deJson == null)
-                {
-                    if (MessageBox.Show("El archivo de guardado esta corrrupto, se usara un archivo antiguo como respaldo, quiere guardar el archivo corrupto?", "Advertencia", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                    {
-                        File.WriteAllText(GAMESDATAFILECRASH, json);
-                        Process.Start("explorer.exe", "/select,\"" + Path.GetFullPath(GAMESDATAFILECRASH) + "\"");
-                    }
-                    json = File.ReadAllText(GAMESDATAFILEOLD);
-                    File.WriteAllText(GAMESDATAFILE, json);
-                    Games = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json);
-
-                }
-                else
-                    Games = deJson;
-
+                CreateDefaultData();
+                return;
             }
-        }
-        
+            string json = File.ReadAllText(GAMESDATAFILE);
 
+            try
+            {
+                _appData = JsonConvert.DeserializeObject<AppModel>(json);
+
+                if (_appData == null || _appData.Games == null)
+                    throw new Exception("Formato invalido");
+
+                //Migrar datos si el JSON es viejo
+                if (_appData.JsonDataVersion < CURRENTDATAVERSION)
+                {
+                    MigrarDatos(_appData.JsonDataVersion);
+                    _appData.JsonDataVersion = CURRENTDATAVERSION;
+                    SaveGamesData();
+                }
+            }
+            catch
+            {
+                //Intetar cargar solo juegos
+                try
+                {
+                    var oldGames = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json);
+
+                    _appData = new AppModel
+                    {
+                        JsonDataVersion = CURRENTDATAVERSION,
+                        Games = oldGames
+                    };
+
+                    SaveGamesData();
+                }
+                catch { ManageCorruptedFile(json); }
+            }
+
+        }
         public static void SaveGamesData()
         {
-            string oldContent = File.ReadAllText(GAMESDATAFILE);
-            File.WriteAllText(GAMESDATAFILEOLD, oldContent);
+            if (_appData == null)
+                return;
 
-            string json = JsonConvert.SerializeObject(Games, Formatting.Indented);
+            if (File.Exists(GAMESDATAFILE))
+                File.Copy(GAMESDATAFILE, GAMESDATAFILEOLD, true);
+            
+            _appData.JsonDataVersion = CURRENTDATAVERSION;
+
+            string json = JsonConvert.SerializeObject(_appData, Formatting.Indented);
             File.WriteAllText(GAMESDATAFILE, json);
-            //string encryptedJson = AES256.Encrypt(json, CryptoUtils.defaultPassword);
         }
+
+        #region Migraciones
+        private static void MigrarDatos(int versionActual)
+        {
+            //if (versionActual < 1)
+            //    MigrarV0aV1();
+
+            //if (versionActual < 2)
+            //    MigrarV1aV2();
+        }
+        #endregion
+
+        private static void CreateDefaultData()
+        {
+            _appData = new AppModel
+            {
+                JsonDataVersion = CURRENTDATAVERSION,
+                Games = new ObservableCollection<GameModel>()
+            };
+        }
+
+        private static void ManageCorruptedFile(string json)
+        {
+            if (MessageBox.Show("El archivo de guardado esta corrrupto, se usara un archivo de respaldo, quiere guardar el archivo corrupto?", "Advertencia", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                File.WriteAllText(GAMESDATAFILECRASH, json);
+                Process.Start("explorer.exe", "/select,\"" + Path.GetFullPath(GAMESDATAFILECRASH) + "\"");
+            }
+
+            if (File.Exists(GAMESDATAFILEOLD))
+            {
+                File.Copy(GAMESDATAFILEOLD, GAMESDATAFILE, true);
+                LoadGamesData();
+            }
+            else
+            {
+                MessageBox.Show("No se encontro archivo de respaldo, se creara un nuevo archivo de guardado.", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+                CreateDefaultData();
+            }
+        }
+
     }
 }

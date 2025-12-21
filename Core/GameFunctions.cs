@@ -34,18 +34,18 @@ namespace Games_Launcher.Core
             if (time.TotalSeconds > 100)
             {
                 if (time.TotalMinutes > 100)
-                {
                     return $"{time.TotalHours:F1} horas";
-                }
                 else
-                {
                     return $"{time.TotalMinutes:F0} minutos";
-                }
+                
             }
             else
             {
+                if (time.TotalSeconds < 1)
+                    return "N/A";
                 return $"{time.TotalSeconds:F0} segundos";
             }
+            
         }
 
         public static bool? SelectGamePath(out string path)
@@ -66,8 +66,8 @@ namespace Games_Launcher.Core
             DateTime ayer = hoy.AddDays(-1);
 
 
-            if (fechaInicio == null)
-                return "00/00/0000";
+            if (fechaInicio == new DateTime() || fechaInicio == null)
+                return "N/A";
             else if (fechaInicio.Date == hoy)
                 return "Hoy";
             else if (fechaInicio.Date == ayer)

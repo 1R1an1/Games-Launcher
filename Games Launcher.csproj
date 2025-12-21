@@ -84,6 +84,7 @@
     <Compile Include="Core\GameFunctions.cs" />
     <Compile Include="Core\GameMonitor.cs" />
     <Compile Include="Core\GamesInfo.cs" />
+    <Compile Include="Model\AppModel.cs" />
     <Compile Include="Windows\ConfigGameWindow.xaml.cs">
       <DependentUpon>ConfigGameWindow.xaml</DependentUpon>
     </Compile>
