@@ -41,10 +41,28 @@ namespace Games_Launcher.Core
                     _appData.JsonDataVersion = CURRENTDATAVERSION;
                     SaveGamesData();
                 }
+                else if (_appData.JsonDataVersion > CURRENTDATAVERSION)
+                {
+                    var msg = MessageBox.Show("El archivo de guardado fue creado con una versión más reciente de la aplicación.\n" +
+                                              "Para usar la app actual, se requiere crear un nuevo archivo de guardado.\n" +
+                                              "¿Desea borrar los datos y continuar?", "Versión de guardado incompatible", MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+                    if (msg == MessageBoxResult.Yes)
+                    {
+                        CreateDefaultData();
+                        SaveGamesData();
+                        return;
+                    }
+                    else
+                    {
+                        Environment.Exit(0);
+                        return;
+                    }
+                }
             }
             catch
             {
-                //Intetar cargar solo juegos
+                //Intetar cargar solo la lista de juegos
                 try
                 {
                     var oldGames = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json);
