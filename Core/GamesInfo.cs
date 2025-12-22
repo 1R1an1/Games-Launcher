@@ -1,4 +1,5 @@
 ﻿using Games_Launcher.Model;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -29,43 +30,33 @@ namespace Games_Launcher.Core
 
             try
             {
-                _appData = JsonConvert.DeserializeObject<AppModel>(json);
-
-                if (_appData == null || _appData.Games == null)
-                    throw new Exception("Formato invalido");
-
+                var jobject = JObject.Parse(json);
+                int jsonVersion = jobject[nameof(AppModel.JsonDataVersion)].Value<int>();
                 //Migrar datos si el JSON es viejo
-                if (_appData.JsonDataVersion < CURRENTDATAVERSION)
+                if (jsonVersion < CURRENTDATAVERSION)
                 {
-                    MigrarDatos(_appData.JsonDataVersion);
-                    _appData.JsonDataVersion = CURRENTDATAVERSION;
+                    MigrarDatos(jobject, jsonVersion);
                     SaveGamesData();
+                    return;
                 }
-                else if (_appData.JsonDataVersion > CURRENTDATAVERSION)
+                else if (jsonVersion > CURRENTDATAVERSION)
                 {
-                    var msg = MessageBox.Show("El archivo de guardado fue creado con una versión más reciente de la aplicación.\n" +
-                                              "Para usar la app actual, se requiere crear un nuevo archivo de guardado.\n" +
-                                              "¿Desea borrar los datos y continuar?", "Versión de guardado incompatible", MessageBoxButton.YesNo, MessageBoxImage.Error);
-
-                    if (msg == MessageBoxResult.Yes)
-                    {
-                        CreateDefaultData();
-                        SaveGamesData();
-                        return;
-                    }
-                    else
-                    {
-                        Environment.Exit(0);
-                        return;
-                    }
+                    DowngradeWarning();
+                    return;
                 }
+
+                _appData = JsonConvert.DeserializeObject<AppModel>(json);
+                if (_appData == null || _appData.Games == null)
+                    throw new NullReferenceException();
             }
             catch
             {
-                //Intetar cargar solo la lista de juegos
+                //Intentar cargar solo la lista de juegos
                 try
                 {
                     var oldGames = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json);
+                    if (oldGames == null)
+                        throw new NullReferenceException();
 
                     _appData = new AppModel
                     {
@@ -94,7 +85,7 @@ namespace Games_Launcher.Core
         }
 
         #region Migraciones
-        private static void MigrarDatos(int versionActual)
+        private static void MigrarDatos(JObject jobj, int versionActual)
         {
             //if (versionActual < 1)
             //    MigrarV0aV1();
@@ -113,13 +104,32 @@ namespace Games_Launcher.Core
             };
         }
 
+        private static void DowngradeWarning()
+        {
+            var msg = MessageBox.Show("El archivo de guardado fue creado con una versión más reciente de la aplicación.\n" +
+                                              "Para usar la app actual, se requiere crear un nuevo archivo de guardado.\n" +
+                                              "¿Desea borrar los datos y continuar?", "Versión de guardado incompatible", MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+            if (msg == MessageBoxResult.Yes)
+            {
+                CreateDefaultData();
+                SaveGamesData();
+            }
+            else
+                Environment.Exit(0);
+            
+        }
+
         private static void ManageCorruptedFile(string json)
         {
-            if (MessageBox.Show("El archivo de guardado esta corrrupto, se usara un archivo de respaldo, quiere guardar el archivo corrupto?", "Advertencia", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            var msg = MessageBox.Show("El archivo de guardado esta corrrupto, se usara un archivo de respaldo, quiere guardar el archivo corrupto?", "Advertencia", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+            if (msg == MessageBoxResult.Yes)
             {
                 File.WriteAllText(GAMESDATAFILECRASH, json);
                 Process.Start("explorer.exe", "/select,\"" + Path.GetFullPath(GAMESDATAFILECRASH) + "\"");
             }
+            else if (msg == MessageBoxResult.Cancel)
+                Environment.Exit(0);
 
             if (File.Exists(GAMESDATAFILEOLD))
             {

@@ -11,6 +11,7 @@ namespace Games_Launcher
     public partial class App : Application
     {
         public static MainWindow window;
+        private bool EnableAutoSave = false;
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -22,7 +23,8 @@ namespace Games_Launcher
                 while (true)
                 {
                     await Task.Delay(60000);
-                    GamesInfo.SaveGamesData();
+                    if (EnableAutoSave)
+                        GamesInfo.SaveGamesData();
                 }
             });
             window = new MainWindow();
@@ -31,6 +33,7 @@ namespace Games_Launcher
             App.Current.Exit += Current_Exit;
 
             GameMonitor.StartLoop();
+            EnableAutoSave = true;
 
             //reference windoww = new reference();
             ////MainWindow = windoww;
