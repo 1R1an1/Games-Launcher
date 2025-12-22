@@ -1,20 +1,21 @@
-﻿using Games_Launcher.Model;
-using Newtonsoft.Json.Linq;
+﻿using FortiCrypts;
+using Games_Launcher.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using System;
 
 namespace Games_Launcher.Core
 {
     public static class GamesInfo
     {
-        public readonly static string GAMESDATAFILE = "./games_data.json";
-        public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.json";
+        public readonly static string GAMESDATAFILE = "./games_data.dat";
+        public readonly static string GAMESDATAFILEOLD = "./games_data_OLD.dat";
         public readonly static string GAMESDATAFILECRASH = "./games_data_CRASH.json";
-        public const int CURRENTDATAVERSION = 2;
+        public const int CURRENTDATAVERSION = 3;
 
         private static AppModel _appData;
         public static ObservableCollection<GameModel> Games => _appData.Games;
@@ -26,7 +27,9 @@ namespace Games_Launcher.Core
                 CreateDefaultData();
                 return;
             }
-            string json = File.ReadAllText(GAMESDATAFILE);
+            string jsonEncrypted = File.ReadAllText(GAMESDATAFILE);
+            string json = "";
+            try { json = AES256.Decrypt(jsonEncrypted, CryptoUtils.defaultPassword); } catch { json = jsonEncrypted; }
 
             try
             {
@@ -54,17 +57,16 @@ namespace Games_Launcher.Core
                 //Intentar cargar solo la lista de juegos
                 try
                 {
-                    var oldGames = JsonConvert.DeserializeObject<ObservableCollection<GameModel>>(json);
-                    if (oldGames == null)
-                        throw new NullReferenceException();
-
-                    _appData = new AppModel
+                    var gamesArray = JArray.Parse(json);
+                    var jobj = new JObject
                     {
-                        JsonDataVersion = CURRENTDATAVERSION,
-                        Games = oldGames
+                        [nameof(AppModel.JsonDataVersion)] = 2,
+                        [nameof(AppModel.Games)] = gamesArray
                     };
 
-                    SaveGamesData();
+                    SaveGamesData(jobj.ToString(Formatting.Indented));
+                    LoadGamesData();
+                    return;
                 }
                 catch { ManageCorruptedFile(json); }
             }
@@ -77,24 +79,71 @@ namespace Games_Launcher.Core
 
             if (File.Exists(GAMESDATAFILE))
                 File.Copy(GAMESDATAFILE, GAMESDATAFILEOLD, true);
-            
+
             _appData.JsonDataVersion = CURRENTDATAVERSION;
 
             string json = JsonConvert.SerializeObject(_appData, Formatting.Indented);
-            File.WriteAllText(GAMESDATAFILE, json);
+            string jsonEncrypted = AES256.Encrypt(json, CryptoUtils.defaultPassword);
+            File.WriteAllText(GAMESDATAFILE, jsonEncrypted);
+        }
+
+        private static void SaveGamesData(object obj)
+        {
+            if (obj == null)
+                return;
+
+            if (File.Exists(GAMESDATAFILE))
+                File.Copy(GAMESDATAFILE, GAMESDATAFILEOLD, true);
+
+            string objEncrypted = AES256.Encrypt(obj.ToString(), CryptoUtils.defaultPassword);
+            File.WriteAllText(GAMESDATAFILE, objEncrypted);
         }
 
         #region Migraciones
-        private static void MigrarDatos(JObject jobj, int versionActual)
+        private static void MigrarDatos(JObject jobj, int jsonDataVersion)
         {
-            //if (versionActual < 1)
-            //    MigrarV0aV1();
+            if (jsonDataVersion < 3)
+                MigrarV2aV3(jobj);
 
-            //if (versionActual < 2)
-            //    MigrarV1aV2();
+            _appData = jobj.ToObject<AppModel>();
+        }
+
+        private static void MigrarV2aV3(JObject jobj)
+        {
+            var games = jobj[nameof(AppModel.Games)] as JArray;
+            if (games == null)
+                return;
+
+            foreach (var item in games)
+            {
+                var game = item as JObject;
+                if (game == null)
+                    continue;
+
+                TimeSpan playTime = TimeSpan.Zero;
+                var ptGame = game[nameof(GameModel.PlayTime)];
+                try
+                {
+                    var decrypted = AES256.Decrypt(ptGame.Value<string>(), CryptoUtils.defaultPassword);
+                    TimeSpan.TryParse(decrypted, out playTime);
+                }
+                catch { try { TimeSpan.TryParse(ptGame.Value<string>(), out playTime); } catch { } }
+
+                game[nameof(GameModel.PlayTime)] = playTime;
+            }
         }
         #endregion
 
+        public static void CheckFileNames()
+        {
+            string oldPath = Path.ChangeExtension(GAMESDATAFILE, ".json");
+            if (File.Exists(oldPath) && !File.Exists(GAMESDATAFILE))
+                File.Move(oldPath, GAMESDATAFILE);
+
+            oldPath = Path.ChangeExtension(GAMESDATAFILEOLD, ".json");
+            if (File.Exists(oldPath) && !File.Exists(GAMESDATAFILEOLD))
+                File.Move(oldPath, GAMESDATAFILEOLD);
+        }
         private static void CreateDefaultData()
         {
             _appData = new AppModel

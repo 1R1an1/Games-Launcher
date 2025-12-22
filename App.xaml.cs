@@ -16,6 +16,7 @@ namespace Games_Launcher
         {
             base.OnStartup(e);
             CryptoUtils.iterations = 2500;
+            GamesInfo.CheckFileNames();
             GamesInfo.LoadGamesData();
 
             _ = Task.Run(async () =>
